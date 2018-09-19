@@ -34,7 +34,6 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.getReportGroups('');
     }
-
     getReportGroups(token) {
 
         this.dashboardsService.getDashboards().subscribe(resultado => {
@@ -101,6 +100,7 @@ export class AppComponent implements OnInit {
 
 
     });
+
         const geoMap = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"LineString","coordinates":[[32,-21],[33,-21],[34,-24],[32,-26],[32,-26],[31,-22],[32,-21],[32,-21],[32,-21]]}}]}
 
         this.chartMap = {

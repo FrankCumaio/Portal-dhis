@@ -31,8 +31,8 @@
             "type": "Feature",
             "id": "RU",
             "properties": {
-                "hc-key": "ru",
-                "hc-a2": "RU",
+                "hc-key": "za",
+                "hc-a2": "ZA",
                 "name": "Inhambane",
             },
             "geometry": {
@@ -42,7 +42,7 @@
         },
             {
                 "type": "Feature",
-                "id": "ZA",
+                "id": "MZ",
                 "properties": {
                     "hc-group": "admin0",
 
