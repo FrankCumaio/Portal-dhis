@@ -5,28 +5,34 @@
 </div>
 <!--<mat-grid-list cols="2">-->
     <!--<mat-grid-tile >-->
+<div *ngIf="chartOptions" class="row">
+    <div *ngFor="let item of chartOptions; let i=index" class="col-12 col-md-6 col-sm-12 reps"
+         id="rep{{i}}" tabindex="-1">
 <mat-card class="container">
 
 <highcharts-chart
         [Highcharts]="Highcharts"
-        [options]="chartOptions"
+        [options]="chartOptions[i]"
 
         style="width: 100%; height: 400px; display: block; margin: 0 auto"
 ></highcharts-chart>
   </mat-card>
+</div>
+</div>
     <!--</mat-grid-tile>-->
 <!--</mat-grid-list>-->
 
-    <div style="width: 100%; float: left;">
-      <h2>Demo #3: Highmaps map chart</h2>
-      <highcharts-chart
-              [Highcharts]="Highcharts"
-              [constructorType]="'mapChart'"
-              [options]="chartMap"
 
-              style="width: 100%; height: 650px; display: block;"
-      ></highcharts-chart>
-    </div>
+        <!--<mat-card class="container">-->
+      <!--<highcharts-chart-->
+              <!--[Highcharts]="Highcharts"-->
+              <!--[constructorType]="'mapChart'"-->
+              <!--[options]="chartMap"-->
+
+              <!--style="width: 100%; height: 650px; display: block;"-->
+      <!--&gt;</highcharts-chart>-->
+        <!--</mat-card>-->
+
   <!--</div>-->
 <!--</div>-->
 
