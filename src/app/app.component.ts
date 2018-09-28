@@ -22,7 +22,7 @@ export class AppComponent implements OnInit {
     public chartOptions = []; chartMap = {};
     public Highcharts = Highcharts;
     private dashboards: any;
-    private series = Array<{ name: string, data: number[]}>();
+    private series = [];
     private Mapseries = Array<{ value: number, code: string}>();
     private  OrgUnits = [];
 
@@ -616,30 +616,67 @@ export class AppComponent implements OnInit {
                 dashboard.dashboardItems.forEach((element, intemIndex) => {
                     if (element.type === 'CHART') {
                         this.dashboardsService.getItemData(this.dashboardsService.prepareForRequest(element)).subscribe((result) => {
-                            console.log(element.chart);
-                            console.log(result);
-                            element.chart.organisationUnits.forEach((orgUnit, index) => {
-                                this.OrgUnits.push(orgUnit.displayName);
-                                result.rows.forEach((row) => {
-                                    let orgName = '';
-                                        this.series.push({name:  'oi', data: [parseInt(row[2])]});
 
+                            let dataDItype = null;
+                            const xcategories = [];
+                            const ddiRows = [];
+                            const dataDIArray = Array<{ name: string, data: number[]}>();
+
+                            // Carregamos os dados PAra cada Dimensao
+                            element.chart.dataDimensionItems.forEach((dataDI) => {
+
+                                const rowsArray = [];
+                                dataDItype = this.dashboardsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
+                                result.rows.forEach((row) => {
+                                    if (row[0] === dataDI[dataDItype].id) {
+                                        console.log(row[2]);
+                                        rowsArray.push(parseInt(row[2]));
+                                    }
                                 });
+                                if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE') {
+                                    dataDIArray.push({'name': dataDI[dataDItype].id, 'data': rowsArray});
+                                } else if (element.chart.type === 'PIE') {
+
+                                }
+                                // let rowData = [];
+                                //  dataDItype = this.dashboardsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
+                                // // const dataDIName = this.dashboardsService.get
+                                // // console.log(dataDI[dataDItype])
+                                //
+                                //
+                                //     const rowName = null;
+                                //
+                                //     console.log(element.chart.type);
+                                //     // if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE') {
+                                //         result.rows.forEach((row) => {
+                                //             console.log(row);
+                                //         if (row[0] === dataDI[dataDItype].id) {
+                                //             ddiRows.push(parseInt(row[2]));
+                                //         }
+                                //         });
+                                //     // }
+                                //     // ddiRows.push(rowData);
+                                //
+                                // //
+                                // this.series.push({name: dataDI[dataDItype].id, data: ddiRows});
                             });
 
+                            this.series = dataDIArray;
+                            console.log(this.series);
                                 // console.log([49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]);
-                            console.log(this.series)
+                            // console.log(this.series)
                             // this.title = ;
                             this.chartOptions.push({
                                 series: this.series,
                                 chart: {
+                                    // type: element.chart.type.toLowerCase()
                                     type: 'column'
                                 },
                                 title: {
                                     text: element.chart.displayName
                                 },
                                 xAxis: {
-                                    categories: 1,
+                                    categories: xcategories,
                                     crosshair: false
                                 }
                             });
