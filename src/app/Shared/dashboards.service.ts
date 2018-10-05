@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Headers, Http, Response, ResponseContentType } from '@angular/http';
+import {  Headers, Http, Response, ResponseContentType } from '@angular/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
 import { Observable} from 'rxjs/Observable';
 import { ConfigService } from '../utils/config.service';
 import { HttpClient, HttpHeaders} from '@angular/common/http';
+import index from "@angular/cli/lib/cli";
 // import { AsyncLocalStorage } from 'angular-async-local-storage';
 // import {LocalStorageService, SessionStorageService} from 'ngx-webstorage';
 
@@ -191,10 +192,50 @@ export class DashboardsService {
     }
     getItemData(options: any): Observable<any> {
         // console.log(options);
-     let url = null, series = null;
+     let url = null, urlCategories = ``, urlDimensions = ``,wichCategory = null;
 
         // verificamos e definimos os filtros do item para formar a requisição
-        options.filtersOptions.forEach((filter, index) => {
+
+        // formamos as dimensoes para a url
+        options.dataDimensions.forEach((dm) => {
+            urlDimensions = urlDimensions + `?dimension=${options.series}:${options.dataDimensions.map((el) => el.id).join(';')}`;
+        })
+
+        // formamos as categorias para a url
+
+        //
+        if (options.category === 'ou') {
+            urlDimensions = urlDimensions + `&dimension=ou:${options.orgUnits.map((el) => el).join(';')}`;
+        }  if (options.category === 'pe') {
+            urlDimensions = urlDimensions + `&dimension=pe:${options.periods.map((el) => el).join(';')}`;
+        }  if (options.category === 'dx') {
+            urlDimensions = urlDimensions + `&dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
+        }
+
+//        formamos os filtros
+//         console.log(options.filtersOptions);
+
+        options.filtersOptions.forEach((fltr) => {
+            console.log(fltr)
+            if (fltr === 'dx') {
+                urlDimensions = urlDimensions + `&filter=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
+            }
+
+            if (fltr === 'pe') {
+                urlDimensions = urlDimensions + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
+            }
+            if (fltr === 'ou') {
+                urlDimensions = urlDimensions + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}`;
+            }
+        })
+        // console.log(options);
+console.log(urlDimensions);
+        // options.dataDimensions.forEach((dm) => {
+        //     urlDimensions = urlDimensions + `${options.series}:${options.dataDimensions.map((el) => el.id).join(';')}&`;
+        // })
+
+
+        options.filtersOptions.forEach((filter) => {
             // console.log(options.orgUnits)
             if (options.series === 'dx' && options.category === 'ou' && filter === 'pe' ) {
                 url = `?dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`
@@ -217,6 +258,13 @@ export class DashboardsService {
             if (options.series === 'ou' && options.category === 'dx' && filter === 'pe' ) {
                 url = `?dimension=ou:${options.orgUnits.map((el) => el).join(';')}`
                     + `&dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`
+                    + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
+            }
+
+
+            if (options.series === 'dx' && options.category === 'ou' && filter === 'pe' ) {
+                url = `?dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`
+                    + `&dimension=ou:${options.orgUnits.map((el) => el).join(';')}`
                     + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
             }
         });
@@ -249,7 +297,7 @@ export class DashboardsService {
             // Resto dos items
 
             return this.http.get(`${this.configService.apiURI}/api/analytics.json`
-                + url,
+                + urlDimensions,
                 {headers: this.headers});
         }
     }

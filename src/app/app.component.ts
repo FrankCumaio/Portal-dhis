@@ -48,62 +48,66 @@ export class AppComponent implements OnInit {
                 // Percoremos os items da dashboard para formatação dos dados
                 dashboard.dashboardItems.forEach((element, intemIndex) => {
                     if (element.type === 'CHART') {
+                        // console.log(element)
                         this.dashboardsService.getItemData(this.dashboardsService.prepareForRequest(element)).subscribe((result) => {
 
                             let dataDItype = null;
                             const xcategories = [];
                             const ddiRows = [];
-                            const dataDIArray = Array<{ name: string, data: number[]}>();
+                            const dataDIArray = [];
 
                             // Carregamos os dados PAra cada Dimensao
                             element.chart.dataDimensionItems.forEach((dataDI) => {
 
                                 const rowsArray = [];
                                 dataDItype = this.dashboardsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
-                                result.rows.forEach((row) => {
+                                console.log(result.metaData);
+                                result.rows.forEach((row, index) => {
                                     if (row[0] === dataDI[dataDItype].id) {
-                                        // console.log(row[2]);
+                                      const  filterName = row[1];
+                                        xcategories.push(result.metaData.items[filterName].name)
                                         rowsArray.push(parseInt(row[2]));
                                     }
                                 });
                                 if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE') {
                                     dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
                                 } else if (element.chart.type === 'PIE') {
-
+                                    this.series =  [{
+                                        name: 'Brands',
+                                        colorByPoint: true,
+                                        data: [{
+                                            name: 'Chrome',
+                                            y: 61.41,
+                                        }, {
+                                            name: 'Internet Explorer',
+                                            y: 11.84
+                                        }, {
+                                            name: 'Firefox',
+                                            y: 10.85
+                                        }, {
+                                            name: 'Edge',
+                                            y: 4.67
+                                        }, {
+                                            name: 'Safari',
+                                            y: 4.18
+                                        }, {
+                                            name: 'Other',
+                                            y: 7.05
+                                        }]
+                                    }];
                                 }
-                                // let rowData = [];
-                                //  dataDItype = this.dashboardsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
-                                // // const dataDIName = this.dashboardsService.get
-                                // // console.log(dataDI[dataDItype])
-                                //
-                                //
-                                //     const rowName = null;
-                                //
-                                //     console.log(element.chart.type);
-                                //     // if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE') {
-                                //         result.rows.forEach((row) => {
-                                //             console.log(row);
-                                //         if (row[0] === dataDI[dataDItype].id) {
-                                //             ddiRows.push(parseInt(row[2]));
-                                //         }
-                                //         });
-                                //     // }
-                                //     // ddiRows.push(rowData);
-                                //
-                                // //
-                                // this.series.push({name: dataDI[dataDItype].id, data: ddiRows});
                             });
 
                             this.series = dataDIArray;
-                            console.log(element);
+                            // console.log(element);
                                 // console.log([49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]);
                             // console.log(this.series)
                             // this.title = ;
                             this.chartOptions.push({
                                 series: this.series,
                                 chart: {
-                                    // type: element.chart.type.toLowerCase()
-                                    type: 'column'
+                                    type: element.chart.type.toLowerCase()
+                                    // type: 'column'
                                 },
                                 title: {
                                     text: element.chart.displayName

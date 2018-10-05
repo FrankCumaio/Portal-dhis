@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class ConfigService {
 
-      apiURI = 'https://play.dhis2.org/2.29';
+      apiURI = 'https://play.dhis2.org/2.30';
     username = 'admin';
       password = 'district'
 
