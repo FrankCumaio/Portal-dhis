@@ -48,7 +48,7 @@ export class AppComponent implements OnInit {
                 // Percoremos os items da dashboard para formatação dos dados
                 dashboard.dashboardItems.forEach((element, intemIndex) => {
                     if (element.type === 'CHART') {
-                        // console.log(element)
+                        console.log(element)
                         this.dashboardsService.getItemData(this.dashboardsService.prepareForRequest(element)).subscribe((result) => {
 
                             let dataDItype = null;
@@ -61,40 +61,24 @@ export class AppComponent implements OnInit {
 
                                 const rowsArray = [];
                                 dataDItype = this.dashboardsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
-                                console.log(result.metaData);
+                                // console.log(result.metaData);
                                 result.rows.forEach((row, index) => {
                                     if (row[0] === dataDI[dataDItype].id) {
                                       const  filterName = row[1];
                                         xcategories.push(result.metaData.items[filterName].name)
-                                        rowsArray.push(parseInt(row[2]));
+                                       if (element.chart.type === 'PIE') {
+                                           rowsArray.push({'name': result.metaData.items[filterName].name , 'y': parseInt(row[2])});
+
+                                        } else {
+                                            rowsArray.push(parseInt(row[2]));
+                                        }
                                     }
                                 });
                                 if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE') {
                                     dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
                                 } else if (element.chart.type === 'PIE') {
-                                    this.series =  [{
-                                        name: 'Brands',
-                                        colorByPoint: true,
-                                        data: [{
-                                            name: 'Chrome',
-                                            y: 61.41,
-                                        }, {
-                                            name: 'Internet Explorer',
-                                            y: 11.84
-                                        }, {
-                                            name: 'Firefox',
-                                            y: 10.85
-                                        }, {
-                                            name: 'Edge',
-                                            y: 4.67
-                                        }, {
-                                            name: 'Safari',
-                                            y: 4.18
-                                        }, {
-                                            name: 'Other',
-                                            y: 7.05
-                                        }]
-                                    }];
+                                    dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
+
                                 }
                             });
 
@@ -107,7 +91,7 @@ export class AppComponent implements OnInit {
                                 series: this.series,
                                 chart: {
                                     type: element.chart.type.toLowerCase()
-                                    // type: 'column'
+                                    // type: 'pie'
                                 },
                                 title: {
                                     text: element.chart.displayName
@@ -144,33 +128,5 @@ export class AppComponent implements OnInit {
 
 
     });
-
-        const geoMap = {'type':'FeatureCollection','features':[{'type':'Feature','properties':{},'geometry':{'type':'LineString','coordinates':[[32,-21],[33,-21],[34,-24],[32,-26],[32,-26],[31,-22],[32,-21],[32,-21],[32,-21]]}}]}
-
-        this.chartMap = {
-            chart: {
-                map: 'myMapName'
-            },
-            title: {
-                text: 'Highmaps basic demo'
-            },
-            subtitle: {
-                text: 'Map One'
-            },
-            colorAxis: {
-                min: 0
-            },
-            series: [{
-                name: 'Numero de doencas',
-                dataLabels: {
-                    enabled: true,
-                    format: '{point.name}'
-                },
-                allAreas: false,
-                data: [
-                    ['mz', 35],
-                ]
-            }]
-        };
     }
 }

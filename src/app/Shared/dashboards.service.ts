@@ -35,7 +35,7 @@ export class DashboardsService {
             + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,periods],`
             + `eventChart[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category],`
             +  `eventReport[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category,filters,columns],`
-            + `chart[:idName,translations,dataDimensionItems[indicator[:idName],dataElement[:idName],*],relativePeriods,type,periods,series,category,filterDimensions,organisationUnits[:idName]]`
+            + `chart[:idName,translations,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,type,periods,series,category,filterDimensions,organisationUnits[:idName]]`
             + `map[:idName, translations,latitude,longitude,zoom]`,
             { headers: this.headers });
 
@@ -191,25 +191,31 @@ export class DashboardsService {
             {headers: this.headers});
     }
     getItemData(options: any): Observable<any> {
-        // console.log(options);
+        console.log(options.orgUnits.length);
      let url = null, urlCategories = ``, urlDimensions = ``,wichCategory = null;
 
         // verificamos e definimos os filtros do item para formar a requisição
 
         // formamos as dimensoes para a url
-        options.dataDimensions.forEach((dm) => {
-            urlDimensions = urlDimensions + `?dimension=${options.series}:${options.dataDimensions.map((el) => el.id).join(';')}`;
-        })
+
 
         // formamos as categorias para a url
 
         //
-        if (options.category === 'ou') {
-            urlDimensions = urlDimensions + `&dimension=ou:${options.orgUnits.map((el) => el).join(';')}`;
-        }  if (options.category === 'pe') {
-            urlDimensions = urlDimensions + `&dimension=pe:${options.periods.map((el) => el).join(';')}`;
-        }  if (options.category === 'dx') {
-            urlDimensions = urlDimensions + `&dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
+        if (options.series === 'ou' && options.orgUnits.length > 0) {
+            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}&`;
+        }  if (options.series === 'pe' && options.periods.length > 0) {
+            urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
+        }  if (options.series === 'dx' && options.dataDimensions.length > 0) {
+            urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`;
+        }
+
+        if (options.category === 'ou' && options.orgUnits.length > 0) {
+            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}&`;
+        }  if (options.category === 'pe' && options.periods.length > 0) {
+            urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
+        }  if (options.category === 'dx' && options.dataDimensions.length > 0 ) {
+            urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`;
         }
 
 //        formamos os filtros
@@ -217,59 +223,18 @@ export class DashboardsService {
 
         options.filtersOptions.forEach((fltr) => {
             console.log(fltr)
-            if (fltr === 'dx') {
+            if (fltr === 'dx' && options.dataDimensions.length > 0) {
                 urlDimensions = urlDimensions + `&filter=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
             }
 
-            if (fltr === 'pe') {
+            if (fltr === 'pe' && options.periods.length > 0) {
                 urlDimensions = urlDimensions + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
             }
-            if (fltr === 'ou') {
+            if (fltr === 'ou' && options.orgUnits.length > 0) {
                 urlDimensions = urlDimensions + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}`;
             }
         })
         // console.log(options);
-console.log(urlDimensions);
-        // options.dataDimensions.forEach((dm) => {
-        //     urlDimensions = urlDimensions + `${options.series}:${options.dataDimensions.map((el) => el.id).join(';')}&`;
-        // })
-
-
-        options.filtersOptions.forEach((filter) => {
-            // console.log(options.orgUnits)
-            if (options.series === 'dx' && options.category === 'ou' && filter === 'pe' ) {
-                url = `?dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`
-                    + `&dimension=ou:${options.orgUnits.map((el) => el).join(';')}`
-                    + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
-            }
-
-            if (options.series === 'pe' && options.category === 'ou' && filter === 'dx' ) {
-                url = `?dimension=ou:${options.orgUnits.map((el) => el).join(';')}`
-                    + `&dimension=pe:${options.periods.map((el) => el).join(';')}`
-                    + `&filter=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
-            }
-
-            if (options.series === 'dx' && options.category === 'pe' && filter === 'ou' ) {
-                url = `?dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`
-                    + `&dimension=pe:${options.periods.map((el) => el).join(';')}`
-                    + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}`;
-            }
-
-            if (options.series === 'ou' && options.category === 'dx' && filter === 'pe' ) {
-                url = `?dimension=ou:${options.orgUnits.map((el) => el).join(';')}`
-                    + `&dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`
-                    + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
-            }
-
-
-            if (options.series === 'dx' && options.category === 'ou' && filter === 'pe' ) {
-                url = `?dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}`
-                    + `&dimension=ou:${options.orgUnits.map((el) => el).join(';')}`
-                    + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
-            }
-        });
-
-
 
         // if (options.program) {
         //     // TODO eventReport está sempre associado a um programa?
@@ -296,7 +261,7 @@ console.log(urlDimensions);
         } else {
             // Resto dos items
 
-            return this.http.get(`${this.configService.apiURI}/api/analytics.json`
+            return this.http.get(`${this.configService.apiURI}/api/analytics.json?`
                 + urlDimensions,
                 {headers: this.headers});
         }
