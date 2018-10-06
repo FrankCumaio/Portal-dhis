@@ -7,7 +7,7 @@ import * as HC_map from 'highcharts/modules/map';
 import { DashboardsService } from './Shared/dashboards.service';
 
 HC_map( Highcharts);
-HC_exporting(Highcharts);
+HC_exporting( Highcharts);
 
 // require('../../js/world')(Highcharts);
 
@@ -55,30 +55,56 @@ export class AppComponent implements OnInit {
                             const xcategories = [];
                             const ddiRows = [];
                             const dataDIArray = [];
+                            let series = null;
 
-                            // Carregamos os dados PAra cada Dimensao
-                            element.chart.dataDimensionItems.forEach((dataDI) => {
-
+                            if (element.chart.series === 'ou') {
+                                series = 'organisationUnits';
+                            }
+                            if (element.chart.series === 'pe') {
+                                series = 'periods';
+                            }
+                            if (element.chart.series === 'dx') {
+                                series = 'dataDimensionItems';
+                            }
+// console.log( series);
+// console.log( element.chart[series]);
+                            // Carregamos os dados PAra cada Dimensao, Unidade organizacional ou periodo que se encontra nas series
+                            element.chart[series].forEach((dataDI) => {
+                                let serieID;
                                 const rowsArray = [];
-                                dataDItype = this.dashboardsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
-                                // console.log(result.metaData);
+                                // Definimos o id da dimensao pois este pode variar consoante o tipo de serie
+                                if (element.chart.series === 'ou' || element.chart.series === 'pe') {
+                                    serieID = dataDI.id;
+                                } else {
+                                    dataDItype = this.dashboardsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
+                                    serieID = dataDI[dataDItype].id;
+                                }
+                                console.log(dataDI)
                                 result.rows.forEach((row, index) => {
-                                    if (row[0] === dataDI[dataDItype].id) {
+                                    if (row[0] === serieID) {
+                                        // console.log (row)
+                                        console.log (dataDI)
                                       const  filterName = row[1];
+                                        console.log(result.metaData)
                                         xcategories.push(result.metaData.items[filterName].name)
                                        if (element.chart.type === 'PIE') {
+                                            // console.log(result.metaData);
                                            rowsArray.push({'name': result.metaData.items[filterName].name , 'y': parseInt(row[2])});
-
-                                        } else {
+                                        } else if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE') {
                                             rowsArray.push(parseInt(row[2]));
                                         }
                                     }
-                                });
-                                if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE') {
-                                    dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
-                                } else if (element.chart.type === 'PIE') {
-                                    dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
+                                })
+                                if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE' || element.chart.type === 'PIE') {
+                                    if (element.chart.series === 'ou' || element.chart.series === 'pe') {
+                                        dataDIArray.push({'name': dataDI.displayName, 'data': rowsArray});
 
+                                    } else {
+                                        dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
+                                    }
+                                    // } else if (element.chart.type === 'PIE') {
+                                //     dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
+                                //
                                 }
                             });
 

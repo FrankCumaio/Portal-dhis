@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {  Headers, Http, Response, ResponseContentType } from '@angular/http';
+import { Headers, Http, Response, ResponseContentType } from '@angular/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
 import { Observable} from 'rxjs/Observable';
@@ -30,7 +30,8 @@ export class DashboardsService {
     getDashboards(): Observable <any> {
         // console.log('olaaaa');
         // console.log(this.configService.getApiURI);
-        return this.http.get(`${this.configService.apiURI}/api/dashboards.json?fields=:`
+        return this.http.get(`${this.configService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
+        // return this.http.get(`${this.configService.apiURI}/api/dashboards.json?fields=:`
             + `idName,translations,dashboardItems[:idName,type,id,`
             + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,periods],`
             + `eventChart[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category],`
@@ -222,7 +223,7 @@ export class DashboardsService {
 //         console.log(options.filtersOptions);
 
         options.filtersOptions.forEach((fltr) => {
-            console.log(fltr)
+            // console.log(fltr)
             if (fltr === 'dx' && options.dataDimensions.length > 0) {
                 urlDimensions = urlDimensions + `&filter=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
             }
@@ -270,7 +271,9 @@ export class DashboardsService {
     convertCamelCaseToUnderscore(string) {
 
         switch (string) {
+            case 'last3Months': return 'LAST_6_MONTHS';
             case 'last6Months': return 'LAST_6_MONTHS';
+            case 'last12Months': return 'LAST_12_MONTHS';
             case 'last4Weeks': return 'LAST_4_WEEKS';
             case 'last4Quarters': return 'LAST_4_QUARTERS';
             default: return string.replace(/([a-z0-9])([A-Z0-9])/g, '$1_$2').toUpperCase();

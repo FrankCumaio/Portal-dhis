@@ -3,17 +3,22 @@ import { Injectable } from '@angular/core';
 @Injectable()
 export class ConfigService {
 
-      apiURI = 'https://play.dhis2.org/2.30';
-    username = 'admin';
-      password = 'district'
+    //   apiURI = 'https://play.dhis2.org/2.30';
+    // username = 'admin';
+    //   password = 'district'
 
     // apiURI = 'https://moz.dhis2.org/dhis';
     // username = 'fcumaio';
     // password = 'Saudigitus2018!';
 
+    apiURI = 'http://venus.dhis2.org/dhis';
+    username = 'amuchanga';
+    password = 'Maputo2017!';
+
     // apiURI = 'https://dhis2.saudigitus.org/dhis';
     // username = 'dashboardApp';
     // password = '!DontTryToTypeItsV3ryS7rong!';
+
 
     // downloads material config
     optionSetId = 'j41t6IbwIvt';
