@@ -10,6 +10,8 @@ import { NavegacaoComponent } from './navegacao/navegacao.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule,
     MatCardModule, MatGridListModule } from '@angular/material';
+import {LeafletModule} from '@asymmetrik/ngx-leaflet';
+
 
 
 @NgModule({
@@ -29,7 +31,8 @@ import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, Mat
       MatIconModule,
       MatListModule,
       MatCardModule,
-      MatGridListModule
+      MatGridListModule,
+      LeafletModule.forRoot(),
   ],
   providers: [DashboardsService,
       ConfigService],

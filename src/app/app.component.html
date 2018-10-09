@@ -6,33 +6,29 @@
 <!--<mat-grid-list cols="2">-->
     <!--<mat-grid-tile >-->
 <div *ngIf="chartOptions" class="row">
-    <div *ngFor="let item of chartOptions; let i=index" class="col-12 col-md-6 col-sm-12 reps"
+    <div *ngFor="let dashItem of chartOptions; let i=index" class="col-12 col-md-4 col-sm-12 reps"
          id="rep{{i}}" tabindex="-1">
-<mat-card class="container">
 
+<mat-card class="container"
+          *ngIf="dashItem.type === 'chart'">
 <highcharts-chart
+        *ngIf="dashItem.chartOpt.chart.type === 'line' || dashItem.chartOpt.chart.type === 'pie' || dashItem.chartOpt.chart.type === 'bar'"
         [Highcharts]="Highcharts"
-        [options]="chartOptions[i]"
+        [options]="dashItem.chartOpt"
 
-        style="width: 100%; height: 400px; display: block; margin: 0 auto"
+        style="width: 100%; height: 300px; display: block; margin: 0 auto"
 ></highcharts-chart>
   </mat-card>
+
+<mat-card
+        *ngIf="dashItem.type === 'map'">
+    <div class="map-container" style="height: 300px;" id="map{{i}}" class="map"
+         leaflet
+         [leafletOptions]="dashItem.mapOptions"
+    >
+
+    </div>
+</mat-card>
 </div>
 </div>
-    <!--</mat-grid-tile>-->
-<!--</mat-grid-list>-->
-
-
-        <!--<mat-card class="container">-->
-      <!--<highcharts-chart-->
-              <!--[Highcharts]="Highcharts"-->
-              <!--[constructorType]="'mapChart'"-->
-              <!--[options]="chartMap"-->
-
-              <!--style="width: 100%; height: 650px; display: block;"-->
-      <!--&gt;</highcharts-chart>-->
-        <!--</mat-card>-->
-
-  <!--</div>-->
-<!--</div>-->
 
