@@ -148,6 +148,9 @@ export class AppComponent implements OnInit {
                         this.chartOptions.push({ mapOptions: {
                             zoom: element.map.zoom,
                             center: L.latLng(element.map.latitude, element.map.longitude),
+                                layers: [
+                                    L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: 'DHIS2' })
+                                ],
                         },
                             type: element.type.toLowerCase()
                         });
@@ -155,7 +158,7 @@ export class AppComponent implements OnInit {
                             console.log(res);
                             res.mapViews.forEach((mapView) => {
                                if ( mapView.layer !== 'boundary') {
-                                   this.dashboardsService.getItemData(this.dashboardsService.prepareForRequest(mapView)).subscribe((result) => {
+                                   this.dashboardsService.getItemData(this.dashboardsService.prepareForRequest({map: mapView, type: 'map'})).subscribe((result) => {
                                       console.log(result) ;
                                    });
                         //            console.log(mapView);

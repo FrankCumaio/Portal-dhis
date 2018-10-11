@@ -72,7 +72,7 @@ export class DashboardsService {
         const mapData = [];
         const periods = [];
         const orgUnits = [];
-        let type = '';
+        let type = ' ';
         const filtersOptions = [];
         let series = null;
         let category = null;
@@ -81,12 +81,12 @@ export class DashboardsService {
 if (dashboardItem.type) {
     // Preparamos outros elementos diferentes de Mapas
     type = this.convertUnderscoreToCamelCase(dashboardItem.type);
-}        console.log(dashboardItem);
+}        console.log(dashboardItem[type]);
 
         if (dashboardItem[type]) {
         if (dashboardItem[type].hasOwnProperty('dataDimensionItems')) {
             dashboardItem[type].dataDimensionItems.forEach((item) => {
-                // console.log(item);
+                console.log(item);
                 const dimensionType = this.convertUnderscoreToCamelCase(item.dataDimensionItemType);
                 dataDimensions.push({
                     'type': dimensionType,
@@ -94,26 +94,14 @@ if (dashboardItem.type) {
                     'name': item[dimensionType]['displayName']
                 });
             });
-        } else if (dashboardItem[type].hasOwnProperty('dataElementDimensions')) {
+        }
+        if (dashboardItem[type].hasOwnProperty('dataElementDimensions')) {
             dashboardItem[type].dataElementDimensions.forEach((item) => {
                 // console.log(item);
                 dataDimensions.push({
                     'type': 'dataElement',
                     'id': item.dataElement.id,
                     'name': item.dataElement.displayName
-                });
-            });
-        } else if (dashboardItem[type].hasOwnProperty('mapViews')) {
-            // console.log(dashboardItem.map)
-            mapData.push({
-                'lat': dashboardItem.map.latitude,
-                'long': dashboardItem.map.longitude,
-                'zoom': dashboardItem.map.zoom
-            });
-            dashboardItem[type].mapViews.forEach((item) => {
-                item.dataDimensionItems.forEach((dtDm) => {
-                    const dimensionType = this.convertUnderscoreToCamelCase(dtDm.dataDimensionItemType);
-                    dataDimensions.push({'type': dimensionType, 'id': dtDm[dimensionType]['id']});
                 });
             });
         }
@@ -177,7 +165,6 @@ if (dashboardItem.type) {
         //   }
 
     }
-
 
         return {
             dataDimensions: dataDimensions,
@@ -255,6 +242,17 @@ if (dashboardItem.type) {
                 urlDimensions = urlDimensions + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}`;
             }
         })
+
+        // Url para os mapas
+
+        if (options.series === null) {
+            console.log('oi');
+            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}&`
+            + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`
+            + `&filter=pe:${options.periods.map((el) => el).join(';')}`
+            // dimension=ou:LEVEL-3;s5DPBsdoE8b&dimension=dx:sVkTp5609pT&filter=pe:THIS_YEAR&displayProperty=NAME
+        }
+
         // console.log(options);
 
         // if (options.program) {
