@@ -1,12 +1,12 @@
 import {Injectable} from '@angular/core';
-import {Headers, Http, Response, ResponseContentType} from '@angular/http';
+import { HttpClient, HttpHeaders} from '@angular/common/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
 import {Observable} from 'rxjs/Observable';
-import { ConfigService } from '../utils/config.service';
 
 import {forEach} from '@angular/router/src/utils/collection';
 import * as L from 'leaflet';
+import {ConnectionService} from '../Shared/connection.service';
 
 
 // import {observableToBeFn} from 'rxjs/testing/TestScheduler';
@@ -16,30 +16,30 @@ import * as L from 'leaflet';
 export class MapService {
     private dashboards: any[];
     private token: any;
-    private headers: Headers;
+    private headers: HttpHeaders;
     public getPeriods = [];
     public getSelectedOrgUnits = [];
 
     constructor(
-        public http: Http,
-        private configService: ConfigService) {
-        this.headers = new Headers({
+        public http: HttpClient,
+        private connectionService: ConnectionService) {
+        this.headers = new HttpHeaders({
             'Accept': 'application/json',
-            'Authorization': `Basic ${btoa(`${this.configService.username}:${this.configService.password}`)}`
+            'Authorization': `Basic ${btoa(`${this.connectionService.username}:${this.connectionService.password}`)}`
         });
     }
 
-    criarGeoJson(item: any) {
-        console.log(item.rows[0][2]);
-        const orgunits = [];
-        item.rows.forEach((el) => {
-                orgunits.push(el[2])
-            }
-        );
+    criarGeoJson(item: any): Observable<any> {
+        console.log(item.metaData.dimensions.ou);
+        const orgunits = item.metaData.dimensions.ou;
+        // item.rows.forEach((el) => {
+        //         orgunits.push(el[2])
+        //     }
+        // );
         console.log(orgunits);
-        return this.http.get(`${this.configService.apiURI}/api/organisationUnits.json?
+        return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?
         filter=id:in:[` + orgunits + `]&fields=:idName,coordinates,featureType`,
-            {headers: this.headers}).map((res: Response) => res.json());
+            {headers: this.headers});
     }
 
     getColor(d) {
@@ -124,7 +124,7 @@ export class MapService {
         return string.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
     }
     getApiUrl(): string {
-        return this.configService.apiURI;
+        return this.connectionService.apiURI;
     }
 
     //end downloads materiais requests

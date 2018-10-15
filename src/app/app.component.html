@@ -24,6 +24,7 @@
         *ngIf="dashItem.type === 'map'">
     <div class="map-container" style="height: 300px;" id="map{{i}}" class="map"
          leaflet
+         (leafletMapReady)="onMapReady($event)"
          [leafletOptions]="dashItem.mapOptions"
     >
 

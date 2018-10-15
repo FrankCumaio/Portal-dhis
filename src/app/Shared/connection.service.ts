@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 
-@Injectable()
-export class ConfigService {
+@Injectable({
+  providedIn: 'root'
+})
+export class ConnectionService {
 
     //   apiURI = 'https://play.dhis2.org/2.30';
     // username = 'admin';

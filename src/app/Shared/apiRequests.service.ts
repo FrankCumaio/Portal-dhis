@@ -3,15 +3,15 @@ import { Headers, Http, Response, ResponseContentType } from '@angular/http';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/toPromise';
 import { Observable} from 'rxjs/Observable';
-import { ConfigService } from '../utils/config.service';
 import { HttpClient, HttpHeaders} from '@angular/common/http';
 import index from "@angular/cli/lib/cli";
+import {ConnectionService} from './connection.service';
 // import { AsyncLocalStorage } from 'angular-async-local-storage';
 // import {LocalStorageService, SessionStorageService} from 'ngx-webstorage';
 
 
 @Injectable()
-export class DashboardsService {
+export class ApiRequestsService {
     private dashboards: any[];
     private token: any;
     private headers: HttpHeaders;
@@ -19,19 +19,19 @@ export class DashboardsService {
     public getSelectedOrgUnits = [];
     constructor(
         public http: HttpClient,
-        private configService: ConfigService) {
+        private connectionService: ConnectionService) {
         this.headers = new HttpHeaders({
             'Accept': 'application/json',
-            'Authorization': `Basic ${btoa(`${this.configService.username}:${this.configService.password}`)}`
+            'Authorization': `Basic ${btoa(`${this.connectionService.username}:${this.connectionService.password}`)}`
         });
     }
 
 
     getDashboards(): Observable <any> {
         // console.log('olaaaa');
-        // console.log(this.configService.getApiURI);
-        // return this.http.get(`${this.configService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
-        return this.http.get(`${this.configService.apiURI}/api/dashboards.json?fields=:`
+        // console.log(this.connectionService.getApiURI);
+        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
+        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
             + `idName,translations,dashboardItems[:idName,type,id,`
             + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,periods],`
             + `eventChart[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category],`
@@ -45,7 +45,7 @@ export class DashboardsService {
 
     getDataDimensionName(id, type)  {
         // console.log(type);
-        this.http.get(`${this.configService.apiURI}/api/` + type + `s/` + id + `.json?fields=:`
+        this.http.get(`${this.connectionService.apiURI}/api/` + type + `s/` + id + `.json?fields=:`
             + `idName`,
             { headers: this.headers }).subscribe((result:any) => {
             return result.displayName;
@@ -61,7 +61,7 @@ export class DashboardsService {
     // getMap(token: any, Mapid: number): Observable<any> {
     //     console.log('olaaa2a');
     //
-    //     return this.http.get(`${this.configService.apiURI}/api/maps/${Mapid}/data`,
+    //     return this.http.get(`${this.connectionService.apiURI}/api/maps/${Mapid}/data`,
     //         {headers: this.headers, responseType: ResponseContentType.Blob}).map((res: Response) => res.blob());
     // }
 
@@ -81,12 +81,13 @@ export class DashboardsService {
 if (dashboardItem.type) {
     // Preparamos outros elementos diferentes de Mapas
     type = this.convertUnderscoreToCamelCase(dashboardItem.type);
-}        console.log(dashboardItem[type]);
+}
+// console.log(dashboardItem[type]);
 
         if (dashboardItem[type]) {
         if (dashboardItem[type].hasOwnProperty('dataDimensionItems')) {
             dashboardItem[type].dataDimensionItems.forEach((item) => {
-                console.log(item);
+                // console.log(item);
                 const dimensionType = this.convertUnderscoreToCamelCase(item.dataDimensionItemType);
                 dataDimensions.push({
                     'type': dimensionType,
@@ -182,24 +183,24 @@ if (dashboardItem.type) {
 
     // Colocar no Map component
     criarGeoJson(item: any) {
-        console.log(item);
+        // console.log(item);
         const orgunits = [];
         item.rows.forEach((el) => {
                 orgunits.push(el[2]);
             });
-        return this.http.get(`${this.configService.apiURI}/api/organisationUnits.json?`
+        return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?`
         + `filter=id:in:[` + orgunits + `]&fields=:idName,coordinates,featureType`,
             {headers: this.headers});
     }
     getMapviews(mapId: any): Observable<any> {
-        return this.http.get(`${this.configService.apiURI}/api/maps/` + mapId + `.json?`
+        return this.http.get(`${this.connectionService.apiURI}/api/maps/` + mapId + `.json?`
         + `fields=:idName,mapViews[:idName,layer,colorScale,classes,opacity,translations,dataDimensionItems`
         + `[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,periods,`
         + `legendSet,filters,organisationUnits[:idName]]`,
             {headers: this.headers});
     }
     getItemData(options: any): Observable<any> {
-        console.log(options);
+        // console.log(options);
      let url = null, urlCategories = ``, urlDimensions = ``,wichCategory = null;
 
         // verificamos e definimos os filtros do item para formar a requisição
@@ -246,7 +247,7 @@ if (dashboardItem.type) {
         // Url para os mapas
 
         if (options.series === null) {
-            console.log('oi');
+            // console.log('oi');
             urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}&`
             + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`
             + `&filter=pe:${options.periods.map((el) => el).join(';')}`
@@ -259,7 +260,7 @@ if (dashboardItem.type) {
         //     // TODO eventReport está sempre associado a um programa?
         //     // A sequencia importa 1.ou, 2.pe, 3.program
         //     // Se for um tracker
-        //     return this.http.get(`${this.configService.apiURI}/api/analytics/events/aggregate/${options.program}.json`
+        //     return this.http.get(`${this.connectionService.apiURI}/api/analytics/events/aggregate/${options.program}.json`
         //         + `${options.orgUnits.length > 0 ? `?dimension=ou:${options.orgUnits.map((el) => el).join(';')}` : ``}`
         //         + `&dimension=pe:${options.periods.map((el) => el).join(';')}`
         //         + `&dimension=dx${options.dataDimensions.map((el) => el.id).join(';')}`
@@ -272,7 +273,7 @@ if (dashboardItem.type) {
         // LAST_5_YEARS
             // Resto dos items
 
-            return this.http.get(`${this.configService.apiURI}/api/analytics.json?`
+            return this.http.get(`${this.connectionService.apiURI}/api/analytics.json?`
                 + urlDimensions,
                 {headers: this.headers});
     }
@@ -319,25 +320,25 @@ if (dashboardItem.type) {
     // downloads materiais requests
     getAllDocuments() {
         return this.http.get(
-            this.configService.apiURI + '/api/documents.json?fields=[:idName,url,contentType,attributeValues]',
+            this.connectionService.apiURI + '/api/documents.json?fields=[:idName,url,contentType,attributeValues]',
             { headers: this.headers });
     }
 
     // getDocumentContent(documentId) {
     //     return this.http.get(
-    //         this.configService.apiURI + '/api/documents/' + documentId + '/data',
+    //         this.connectionService.apiURI + '/api/documents/' + documentId + '/data',
     //         { headers: this.headers, responseType: ResponseContentType.Blob })
     //         .map(res => res.blob());
     // }
 
     getAllCategorias() {
         return this.http.get(
-            this.configService.apiURI + '/api/optionSets/' + this.configService.optionSetId + '.json?fields=options[name,code]',
-            { headers: this.headers })
+            this.connectionService.apiURI + '/api/optionSets/' + this.connectionService.optionSetId + '.json?fields=options[name,code]',
+            { headers: this.headers });
     }
 
     getApiUrl(): string {
-        return this.configService.apiURI;
+        return this.connectionService.apiURI;
     }
 
     //end downloads materiais requests
