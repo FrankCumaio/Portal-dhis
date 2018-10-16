@@ -30,13 +30,13 @@ export class ApiRequestsService {
     getDashboards(): Observable <any> {
         // console.log('olaaaa');
         // console.log(this.connectionService.getApiURI);
-        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
+        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn]&fields=:`
         return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
             + `idName,translations,dashboardItems[:idName,type,id,`
-            + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,periods],`
+            + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,organisationUnitLevels,periods],`
             + `eventChart[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category],`
             +  `eventReport[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category,filters,columns],`
-            + `chart[:idName,translations,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,type,periods,series,category,filterDimensions,organisationUnits[:idName]]`
+            + `chart[:idName,translations,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,type,periods,series,category,filterDimensions,organisationUnitLevels,organisationUnits[:idName]]`
             + `map[:idName, translations,latitude,longitude,zoom]`,
             { headers: this.headers });
 
@@ -69,9 +69,9 @@ export class ApiRequestsService {
     prepareForRequest(dashboardItem) {
 // console.log(dashboardItem);
         const dataDimensions = [];
-        const mapData = [];
         const periods = [];
         const orgUnits = [];
+        const organisationUnitLevels = [];
         let type = ' ';
         const filtersOptions = [];
         let series = null;
@@ -163,15 +163,22 @@ if (dashboardItem.type) {
                 orgUnits.push(item.id);
             });
         }
+
+        if (dashboardItem[type].hasOwnProperty('organisationUnitLevels')) {
+            dashboardItem[type].organisationUnitLevels.forEach((item) => {
+                organisationUnitLevels.push('LEVEL-' + item);
+            });
+        }
+        // console.log(organisationUnitLevels)
         //   }
 
     }
 
         return {
             dataDimensions: dataDimensions,
-            mapData: mapData,
             periods: periods,
             orgUnits: orgUnits,
+            organisationUnitLevels: organisationUnitLevels,
             program: program,
             programStage: programStage,
             filtersOptions: filtersOptions,
@@ -194,15 +201,18 @@ if (dashboardItem.type) {
     }
     getMapviews(mapId: any): Observable<any> {
         return this.http.get(`${this.connectionService.apiURI}/api/maps/` + mapId + `.json?`
-        + `fields=:idName,mapViews[:idName,layer,colorScale,classes,opacity,translations,dataDimensionItems`
+        + `fields=:idName,mapViews[:idName,layer,organisationUnitLevels,colorScale,classes,opacity,translations,dataDimensionItems`
         + `[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,periods,`
         + `legendSet,filters,organisationUnits[:idName]]`,
             {headers: this.headers});
     }
     getItemData(options: any): Observable<any> {
         // console.log(options);
-     let url = null, urlCategories = ``, urlDimensions = ``,wichCategory = null;
+     let url = null, urlLevls = ``, urlCategories = ``, urlDimensions = ``,wichCategory = null;
 
+     if (options.organisationUnitLevels.length > 0) {
+         urlLevls = `;` + options.organisationUnitLevels.map((el) => el).join(';');
+     }
         // verificamos e definimos os filtros do item para formar a requisição
 
         // formamos as dimensoes para a url
@@ -212,15 +222,15 @@ if (dashboardItem.type) {
 
         //
         if (options.series === 'ou' && options.orgUnits.length > 0) {
-            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}&`;
+            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}${urlLevls}&`;
         }  if (options.series === 'pe' && options.periods.length > 0) {
             urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
         }  if (options.series === 'dx' && options.dataDimensions.length > 0) {
-            urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`;
+            urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}${urlLevls}&`;
         }
 
         if (options.category === 'ou' && options.orgUnits.length > 0) {
-            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}&`;
+            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';') }${urlLevls}&`;
         }  if (options.category === 'pe' && options.periods.length > 0) {
             urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
         }  if (options.category === 'dx' && options.dataDimensions.length > 0 ) {
@@ -240,7 +250,7 @@ if (dashboardItem.type) {
                 urlDimensions = urlDimensions + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
             }
             if (fltr === 'ou' && options.orgUnits.length > 0) {
-                urlDimensions = urlDimensions + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}`;
+                urlDimensions = urlDimensions + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}${urlLevls}`;
             }
         })
 
@@ -248,7 +258,7 @@ if (dashboardItem.type) {
 
         if (options.series === null) {
             // console.log('oi');
-            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}&`
+            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';') }${urlLevls}&`
             + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`
             + `&filter=pe:${options.periods.map((el) => el).join(';')}`
             // dimension=ou:LEVEL-3;s5DPBsdoE8b&dimension=dx:sVkTp5609pT&filter=pe:THIS_YEAR&displayProperty=NAME

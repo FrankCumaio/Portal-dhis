@@ -136,77 +136,90 @@ export class DashboardService {
                     if (element.type === 'MAP') {
                         this.apiRequestsService.getMapviews(element.map.id).subscribe((res) => {
                             // console.log(res);
+                            const geoData = []
+
                             res.mapViews.forEach(async (mapView) => {
                                 if (mapView.layer !== 'boundary') {
-                                    const geoData = []
                                     let states = [];
                                     this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest({
                                         map: mapView,
                                         type: 'map'
                                     })).subscribe((result) => {
-                                        this.mapService.criarGeoJson(result).subscribe((obj) => {
-                                            let type;
+                                        console.log(result);
+
+                                        this.mapService.criarGeoJson(mapView).subscribe((obj) => {
+                                           console.log(obj)
                                             // let index = 0;
-                                            console.log(obj.organisationUnits)
-                                            console.log(result);
-
-                                            if (obj.organisationUnits) {
-                                                obj.organisationUnits.forEach((el, index) => {
+                                            // console.log(obj.organisationUnits)
+                                            let coordenadas = [];
+                                            // if (obj.organisationUnits) {
+                                                // for (let i = 0, len = obj.organisationUnits.length; i < len; i++) {
+                                                obj.forEach((el, index) => {
+                                                    let type = null;
                                                     // Aqui é onde criamos o nosso GeoJson
-                                                    // console.log(result.rows);
-                                                    let coordenadas = [];
+                                                    console.log(el.co);
+
                                                     // console.log(this.apiRequestsService.titleCase(el.featureType));
-                                                    type = this.apiRequestsService.titleCase(el.featureType);
+                                                    // type = this.apiRequestsService.titleCase(el.featureType);
 
-                                                    if (type === 'MultiPolygon') {
-                                                        // coordenadas = JSON.parse('[' + el.coordinates + ']');
-                                                        coordenadas = JSON.parse(el.coordinates);
+                                                    if (el.ty === 2) {
+                                                        const valCoordenadas = el.co;
+                                                        type = 'MultiPolygon'
+                                                        // coordenadas  = el.co;
 
-                                                    } else {
                                                         // coordenadas = JSON.parse('[' + el.coordinates + ']');
-                                                        // coordenadas = coordenadas[0][0];
+                                                        // if (valCoordenadas !== undefined) {
+                                                            coordenadas = JSON.parse(el.co );
+                                                        // }
+
                                                     }
+                                                    if (el.ty === 1 || el.ty === 0) {
+                                                        type = 'Point'
+                                                        coordenadas  = el.co;
+                                                            // if (valCoordenadas !== undefined) {
+                                                                coordenadas = JSON.parse(el.co );
+                                                            //     coordenadas = coordenadas[0];
+                                                            // }
+                                                        //
+                                                    }
+                                                    // console.log(coordenadas);
+                                                    // console.log(geoData);
+
                                                     geoData.push({
                                                         'type': 'Feature',
                                                         'properties': {
-                                                            'orgUnit': el.displayName,
-                                                            'value': 211,
+                                                            'orgUnit': el.na,
+                                                            'value': 1,
                                                         },
                                                         'geometry': {
                                                             'type': type,
                                                             'coordinates': coordenadas
                                                         }
                                                     })
-                                                    // index++;
+                                                    console.log(geoData);
+                                                    // i++;
                                                     // console.log(element.map.mapViews[0].colorScale)
-                                                    states.push({
-                                                        "type": "Feature",
-                                                        "properties": {"party": "Republican"},
-                                                        "geometry": {
-                                                            "type": "Polygon",
-                                                            "coordinates": [[
-                                                                [-104.05, 48.99],
-                                                                [-97.22, 48.98],
-                                                                [-96.58, 45.94],
-                                                                [-104.03, 45.94],
-                                                                [-104.05, 48.99]
-                                                            ]]
-                                                        }
-                                                    }, {
-                                                        "type": "Feature",
-                                                        "properties": {"party": "Democrat"},
-                                                        "geometry": {
-                                                            "type": "Polygon",
-                                                            "coordinates": [[
-                                                                [-109.05, 41.00],
-                                                                [-102.06, 40.99],
-                                                                [-102.03, 36.99],
-                                                                [-109.04, 36.99],
-                                                                [-109.05, 41.00]
-                                                            ]]
-                                                        }
-                                                    });
-                                                    resolve(true);
+                                                    if (index === obj.length - 1) {
+                                                        this.MapGeoJson = L.geoJSON(geoData as any, {
+                                                            style: this.mapService.style,
+                                                            onEachFeature: this.mapService.onEachFeature
+                                                        });
+                                                        this.dahsboardOptions.push({
+                                                            mapOptions: {
+                                                                zoom: element.map.zoom,
+                                                                center: L.latLng(element.map.latitude, element.map.longitude),
+                                                                layers: [
+                                                                    this.MapGeoJson,
+                                                                    L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                                                                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> ' +
+                                                                        '&copy; <a href="https://dhis2.org">DHIS2</a>',
+                                                                    })
+                                                                ],
+                                                            },
+                                                            type: element.type.toLowerCase()
+                                                        });
+                                                        resolve(true);
+                                                    }
                                                 });
                                                 // result.metaData.mapData = {
                                                 //     latitude: element.map.latitude,
@@ -215,28 +228,9 @@ export class DashboardService {
                                                 //     colorScale: element.map.mapViews[0].colorScale,
                                                 //     geoJson: geoData
                                                 // };
-                                            }
+                                            // }
                                         });
 
-                                    });
-                                    console.log(geoData);
-                                    this.MapGeoJson = L.geoJSON(states as any, {
-                                        style: this.mapService.style,
-                                        onEachFeature: this.mapService.onEachFeature
-                                    });
-                                    this.dahsboardOptions.push({
-                                        mapOptions: {
-                                            zoom: element.map.zoom,
-                                            center: L.latLng(element.map.latitude, element.map.longitude),
-                                            layers: [
-                                                this.MapGeoJson,
-                                                L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-                                                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> ' +
-                                                    '&copy; <a href="https://dhis2.org">DHIS2</a>',
-                                                })
-                                            ],
-                                        },
-                                        type: element.type.toLowerCase()
                                     });
                                     // geoData = [];
                                 }

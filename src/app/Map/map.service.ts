@@ -30,16 +30,31 @@ export class MapService {
     }
 
     criarGeoJson(item: any): Observable<any> {
-        console.log(item.metaData.dimensions.ou);
-        const orgunits = item.metaData.dimensions.ou;
-        // item.rows.forEach((el) => {
-        //         orgunits.push(el[2])
-        //     }
-        // );
-        console.log(orgunits);
-        return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?
-        filter=id:in:[` + orgunits + `]&fields=:idName,coordinates,featureType`,
+        console.log(item);
+        let orgunits = ``;
+        let levels = ``;
+        // console.log(item.rows);
+        // const orgunits = item.metaData.dimensions.ou;
+        item.organisationUnitLevels.forEach((el) => {
+            levels = levels + `LEVEL-` + el + `;`;
+            }
+        );
+
+        item.organisationUnits.forEach((el) => {
+                orgunits = orgunits  + el.id + `;`;
+            }
+        );
+
+        // console.log(orgunits);
+        // return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?`
+        // + `filter=id:in:[` + orgunits + `]&fields=:idName,coordinates,featureType`,
+
+        // return this.http.get(`${this.connectionService.apiURI}/api/geoFeatures.json?ou=ou:${levels + orgunits}`,
+        return this.http.get(`${this.connectionService.apiURI}/api/geoFeatures.json?ou=ou:${levels + orgunits}`,
             {headers: this.headers});
+
+        // return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.geojson?parent=` + orgunits + `&`,
+        //     // {headers: this.headers});
     }
 
     getColor(d) {
