@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
 import {ApiRequestsService} from './apiRequests.service';
 import {MapService} from '../Map/map.service';
+import {forEach} from "@angular/router/src/utils/collection";
+import {st} from "@angular/core/src/render3";
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +14,7 @@ export class DashboardService {
     private dashboards: any;
     private series = [];
     public MapGeoJson;
-    public idDiv = 1;
+    public Maplegends = [];
     public reportList = Array<{
         chartOptions: any[],
         mapOptions: any[],
@@ -134,21 +136,27 @@ export class DashboardService {
                     }
                     // Vamos la tratar os Mapas
                     if (element.type === 'MAP') {
-                        this.apiRequestsService.getMapviews(element.map.id).subscribe((res) => {
+                        this.mapService.getMapviews(element.map.id).subscribe((res) => {
                             // console.log(res);
                             const geoData = []
 
-                            res.mapViews.forEach(async (mapView) => {
+                            res.mapViews.forEach( (mapView) => {
                                 if (mapView.layer !== 'boundary') {
-                                    let states = [];
+                                    this.Maplegends = [];
+                                    if (mapView.hasOwnProperty('legendSet')) {
+                                        mapView.legendSet.legends.forEach((legend) => {
+                                            this.Maplegends.push(legend);
+                                        });
+                                    }
+                                    console.log(this.Maplegends)
                                     this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest({
                                         map: mapView,
                                         type: 'map'
                                     })).subscribe((result) => {
-                                        console.log(result);
+                                        // console.log(result);
 
                                         this.mapService.criarGeoJson(mapView).subscribe((obj) => {
-                                           console.log(obj)
+                                           // console.log(obj)
                                             // let index = 0;
                                             // console.log(obj.organisationUnits)
                                             let coordenadas = [];
@@ -156,8 +164,11 @@ export class DashboardService {
                                                 // for (let i = 0, len = obj.organisationUnits.length; i < len; i++) {
                                                 obj.forEach((el, index) => {
                                                     let type = null;
+                                                    let value = null;
+                                                    let style = null;
                                                     // Aqui é onde criamos o nosso GeoJson
-                                                    console.log(el.co);
+                                                    // console.log(el);
+                                                    // console.log(result.rows);
 
                                                     // console.log(this.apiRequestsService.titleCase(el.featureType));
                                                     // type = this.apiRequestsService.titleCase(el.featureType);
@@ -182,6 +193,12 @@ export class DashboardService {
                                                             // }
                                                         //
                                                     }
+
+                                                    result.rows.forEach((row) => {
+                                                        if (el.id === row[1]) {
+                                                            value = row[2];
+                                                        }
+                                                    });
                                                     // console.log(coordenadas);
                                                     // console.log(geoData);
 
@@ -189,14 +206,18 @@ export class DashboardService {
                                                         'type': 'Feature',
                                                         'properties': {
                                                             'orgUnit': el.na,
-                                                            'value': 1,
+                                                            'value': value,
                                                         },
                                                         'geometry': {
                                                             'type': type,
                                                             'coordinates': coordenadas
                                                         }
                                                     })
-                                                    console.log(geoData);
+
+                                                    this.mapService.legendSet = this.Maplegends;
+                                                    this.mapService.getColor(2);
+
+                                                    // console.log(geoData);
                                                     // i++;
                                                     // console.log(element.map.mapViews[0].colorScale)
                                                     if (index === obj.length - 1) {

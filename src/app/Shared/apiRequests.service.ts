@@ -30,8 +30,8 @@ export class ApiRequestsService {
     getDashboards(): Observable <any> {
         // console.log('olaaaa');
         // console.log(this.connectionService.getApiURI);
-        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn]&fields=:`
-        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
+        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn]&fields=:`
+        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
             + `idName,translations,dashboardItems[:idName,type,id,`
             + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,organisationUnitLevels,periods],`
             + `eventChart[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category],`
@@ -199,13 +199,7 @@ if (dashboardItem.type) {
         + `filter=id:in:[` + orgunits + `]&fields=:idName,coordinates,featureType`,
             {headers: this.headers});
     }
-    getMapviews(mapId: any): Observable<any> {
-        return this.http.get(`${this.connectionService.apiURI}/api/maps/` + mapId + `.json?`
-        + `fields=:idName,mapViews[:idName,layer,organisationUnitLevels,colorScale,classes,opacity,translations,dataDimensionItems`
-        + `[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,periods,`
-        + `legendSet,filters,organisationUnits[:idName]]`,
-            {headers: this.headers});
-    }
+
     getItemData(options: any): Observable<any> {
         // console.log(options);
      let url = null, urlLevls = ``, urlCategories = ``, urlDimensions = ``,wichCategory = null;

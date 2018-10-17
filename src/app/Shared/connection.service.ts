@@ -5,17 +5,17 @@ import { Injectable } from '@angular/core';
 })
 export class ConnectionService {
 
-      apiURI = 'https://play.dhis2.org/2.29';
-    username = 'admin';
-      password = 'district'
+    //   apiURI = 'https://play.dhis2.org/2.29';
+    // username = 'admin';
+    //   password = 'district'
 
     // apiURI = 'https://moz.dhis2.org/dhis';
     // username = 'fcumaio';
     // password = 'Saudigitus2018!';
 
-    // apiURI = 'http://venus.dhis2.org/dhis';
-    // username = 'amuchanga';
-    // password = 'Maputo2017!';
+    apiURI = 'http://venus.dhis2.org/dhis';
+    username = 'amuchanga';
+    password = 'Maputo2017!';
 
     // apiURI = 'https://dhis2.saudigitus.org/dhis';
     // username = 'dashboardApp';

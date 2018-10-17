@@ -9,6 +9,7 @@ import * as L from 'leaflet';
 import {ConnectionService} from '../Shared/connection.service';
 
 
+
 // import {observableToBeFn} from 'rxjs/testing/TestScheduler';
 
 
@@ -17,8 +18,10 @@ export class MapService {
     private dashboards: any[];
     private token: any;
     private headers: HttpHeaders;
-    public getPeriods = [];
+    public getPeriods = [null];
+    public legendSet = [];
     public getSelectedOrgUnits = [];
+
 
     constructor(
         public http: HttpClient,
@@ -33,19 +36,16 @@ export class MapService {
         console.log(item);
         let orgunits = ``;
         let levels = ``;
-        // console.log(item.rows);
-        // const orgunits = item.metaData.dimensions.ou;
         item.organisationUnitLevels.forEach((el) => {
             levels = levels + `LEVEL-` + el + `;`;
             }
         );
-
         item.organisationUnits.forEach((el) => {
                 orgunits = orgunits  + el.id + `;`;
             }
         );
 
-        // console.log(orgunits);
+
         // return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?`
         // + `filter=id:in:[` + orgunits + `]&fields=:idName,coordinates,featureType`,
 
@@ -57,31 +57,42 @@ export class MapService {
         //     // {headers: this.headers});
     }
 
+    getMapviews(mapId: any): Observable<any> {
+        console.log("MApviews")
+
+        return this.http.get(`${this.connectionService.apiURI}/api/maps/` + mapId + `.json?`
+            + `fields=:idName,mapViews[:idName,layer,organisationUnitLevels,colorScale,classes,opacity,translations,dataDimensionItems`
+            + `[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,periods,`
+            + `legendSet[*,legends[*]],filters,organisationUnits[:idName]]`,
+            {headers: this.headers});
+    }
+
     getColor(d) {
-        return d > 5000 ? '#800026' :
-            d > 500 ? '#BD0026' :
-                d > 200 ? '#E31A1C' :
-                    d > 100 ? '#FC4E2A' :
-                        d > 50 ? '#FD8D3C' :
-                            d > 20 ? '#FEB24C' :
-                                d > 10 ? '#FED976' :
-                                    '#FFEDA0';
+        console.log(this.legendSet)
+        this.legendSet.forEach((legend) => {
+        if (d >= legend.startValue || d <= legend.endValue) {
+            return legend.color;
+        }
+        });
     }
 
     style(feature) {
-        // console.log(feature.properties.value)
+        // console.log(this.getPeriods)
+        const legendSet =[{startValue: 0, endValue: 1, color: '#FFEDA0'}];
+        legendSet.push({startValue: 1, endValue: 100000000, color: '#fff'});
+        console.log(feature)
         const d = feature.properties.value;
+        let cor = null;
+        legendSet.forEach((legend) => {
+            if (d >= legend.startValue && d <= legend.endValue) {
+
+                cor = legend.color;
+            }
+        });
         // let d = '#FFEDA0';
+        // console.log(legends)
+
         // let d = feature.properties.value;
-        const cor =  d > 5000 ? '#800026' :
-            d > 4000 ? '#BD0026' :
-                d > 3000 ? '#E31A1C' :
-                    d > 2000 ? '#FC4E2A' :
-                        d > 1000 ? '#FD8D3C' :
-                            d > 500 ? '#FEB24C' :
-                                d > 10 ? '#FED976' :
-                                    '#FFEDA0';
-        ;
         return {
             weight: 1,
             opacity: 1,
@@ -92,20 +103,20 @@ export class MapService {
         }
     }
 
-    highlightFeature(e) {
-        const layer = e.target;
-
-        layer.setStyle({
-            weight: 2,
-            color: '#666',
-            dashArray: '',
-            fillOpacity: 0.7
-        });
-
-        // if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        //     layer.bringToFront();
-        // }
-    }
+    // highlightFeature(e) {
+    //     const layer = e.target;
+    //
+    //     layer.setStyle({
+    //         weight: 0.1,
+    //         color: '#006649',
+    //         dashArray: '',
+    //         fillOpacity: 0.7
+    //     });
+    //
+    //     // if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+    //     //     layer.bringToFront();
+    //     // }
+    // }
 
     resetHighlight(e) {
         L.geoJSON().resetStyle(e.target);
@@ -116,19 +127,23 @@ export class MapService {
     // }
 
     onEachFeature(feature, layer) {
-        layer.bindPopup(layer.feature.properties.value);
         layer.on('mouseover', function (ev) {
             layer.setStyle({
-                weight: 5,
-                color: '#666',
+                weight: 4,
+                color: 'black',
                 dashArray: '',
                 fillOpacity: 0.7
             }); // ev is an event object (MouseEvent in this case)
-            layer.bindPopup(feature.properties.popupContent);
+            // layer.bindPopup(feature.properties.popupContent);
+            layer.bindTooltip(feature.properties.orgUnit + ` (${feature.properties.value})`).openTooltip();
         });
         layer.on('mouseout', function (ev) {
-            // this.style(feature);
-
+            layer.setStyle({
+                weight: 1,
+                color: 'black',
+                dashArray: '',
+                fillOpacity: 0.7
+            });
         });
     }
 
