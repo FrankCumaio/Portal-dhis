@@ -9,7 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NavegacaoComponent } from './navegacao/navegacao.component';
 import { LayoutModule } from '@angular/cdk/layout';
 import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule,
-    MatCardModule, MatGridListModule } from '@angular/material';
+    MatCardModule, MatGridListModule, MatTableModule } from '@angular/material';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import {ConnectionService} from './Shared/connection.service';
 import {DashboardService} from "./Shared/dashboard.service";
@@ -36,6 +36,7 @@ export function dahsboardServiceFactory(provider: DashboardService) {
       MatListModule,
       MatCardModule,
       MatGridListModule,
+      MatTableModule,
       LeafletModule.forRoot(),
   ],
   providers: [

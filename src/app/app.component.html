@@ -20,8 +20,7 @@
 ></highcharts-chart>
   </mat-card>
 
-<mat-card
-        *ngIf="dashItem.type === 'map'">
+<mat-card *ngIf="dashItem.type === 'map'">
     <div class="map-container" style="height: 450px;" id="map{{i}}" class="map"
          leaflet
          (leafletMapReady)="onMapReady($event)"
@@ -30,6 +29,17 @@
 
     </div>
 </mat-card>
+
+        <mat-card *ngIf="dashItem.type === 'report_table'">
+            <table mat-table [dataSource]='dashItem.tableOptions.dataSource'>
+                <ng-container matColumnDef="{{column}}" *ngFor="let column of dashItem.tableOptions.displayedColumns">
+                    <mat-header-cell *matHeaderCellDef mat-sort-header> {{column}} </mat-header-cell>
+                    <mat-cell *matCellDef="let element"> {{element[column]}} </mat-cell>
+                </ng-container>
+                <mat-header-row *matHeaderRowDef="dashItem.tableOptions.displayedColumns"></mat-header-row>
+                <mat-row *matRowDef="let row; columns: dashItem.tableOptions.displayedColumns;"></mat-row>
+            </table>
+        </mat-card>
 </div>
 </div>
 

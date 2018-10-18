@@ -33,7 +33,7 @@ export class MapService {
     }
 
     criarGeoJson(item: any): Observable<any> {
-        console.log(item);
+        // console.log(item);
         let orgunits = ``;
         let levels = ``;
         item.organisationUnitLevels.forEach((el) => {
@@ -58,7 +58,7 @@ export class MapService {
     }
 
     getMapviews(mapId: any): Observable<any> {
-        console.log("MApviews")
+        // console.log("MApviews")
 
         return this.http.get(`${this.connectionService.apiURI}/api/maps/` + mapId + `.json?`
             + `fields=:idName,mapViews[:idName,layer,organisationUnitLevels,colorScale,classes,opacity,translations,dataDimensionItems`
@@ -68,9 +68,10 @@ export class MapService {
     }
 
     getColor(d) {
-        console.log(this.legendSet)
+        // console.log(this.legendSet)
         this.legendSet.forEach((legend) => {
         if (d >= legend.startValue || d <= legend.endValue) {
+            console.log(legend.color)
             return legend.color;
         }
         });
@@ -80,7 +81,8 @@ export class MapService {
         // console.log(this.getPeriods)
         const legendSet =[{startValue: 0, endValue: 1, color: '#FFEDA0'}];
         legendSet.push({startValue: 1, endValue: 100000000, color: '#fff'});
-        console.log(feature)
+        this.getColor(2);
+        // console.log(feature)
         const d = feature.properties.value;
         let cor = null;
         legendSet.forEach((legend) => {

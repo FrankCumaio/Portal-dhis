@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
 import {ApiRequestsService} from './apiRequests.service';
 import {MapService} from '../Map/map.service';
+import {MatPaginator, MatTableDataSource} from '@angular/material';
 import {forEach} from "@angular/router/src/utils/collection";
 import {st} from "@angular/core/src/render3";
 
@@ -18,6 +19,7 @@ export class DashboardService {
     public reportList = Array<{
         chartOptions: any[],
         mapOptions: any[],
+        tableOptions: any[],
         dashboardID: number
     }>();
     private Mapseries = Array<{ value: number, code: string}>();
@@ -42,6 +44,7 @@ export class DashboardService {
             this.dashboards.forEach((dashboard, i) => {
                 // Percoremos os items da dashboard para formatação dos dados
                 dashboard.dashboardItems.forEach(async (element, intemIndex) => {
+                // this.dashboards[0].dashboardItems.forEach(async (element, intemIndex) => {
                     if (element.type === 'CHART') {
                         // console.log(element)
                         this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe((result) => {
@@ -148,30 +151,20 @@ export class DashboardService {
                                             this.Maplegends.push(legend);
                                         });
                                     }
-                                    console.log(this.Maplegends)
+                                    // console.log(this.Maplegends)
                                     this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest({
                                         map: mapView,
                                         type: 'map'
                                     })).subscribe((result) => {
-                                        // console.log(result);
 
                                         this.mapService.criarGeoJson(mapView).subscribe((obj) => {
-                                           // console.log(obj)
-                                            // let index = 0;
-                                            // console.log(obj.organisationUnits)
+
                                             let coordenadas = [];
-                                            // if (obj.organisationUnits) {
-                                                // for (let i = 0, len = obj.organisationUnits.length; i < len; i++) {
                                                 obj.forEach((el, index) => {
                                                     let type = null;
                                                     let value = null;
-                                                    let style = null;
+                                                    let color = null;
                                                     // Aqui é onde criamos o nosso GeoJson
-                                                    // console.log(el);
-                                                    // console.log(result.rows);
-
-                                                    // console.log(this.apiRequestsService.titleCase(el.featureType));
-                                                    // type = this.apiRequestsService.titleCase(el.featureType);
 
                                                     if (el.ty === 2) {
                                                         const valCoordenadas = el.co;
@@ -183,12 +176,12 @@ export class DashboardService {
                                                             coordenadas = JSON.parse(el.co );
                                                         // }
 
-                                                    }
-                                                    if (el.ty === 1 || el.ty === 0) {
+                                                    } else if (el.ty === 1 || el.ty === 0) {
                                                         type = 'Point'
                                                         coordenadas  = el.co;
                                                             // if (valCoordenadas !== undefined) {
                                                                 coordenadas = JSON.parse(el.co );
+                                                                // console.log([coordenadas])
                                                             //     coordenadas = coordenadas[0];
                                                             // }
                                                         //
@@ -201,12 +194,21 @@ export class DashboardService {
                                                     });
                                                     // console.log(coordenadas);
                                                     // console.log(geoData);
+                                                    this.mapService.legendSet = this.Maplegends;
+                                                    this.Maplegends.forEach((legend) => {
+                                                        if (value >= legend.startValue && value <= legend.endValue) {
+                                                            color = legend.color;
+                                                        }
+                                                    });
+                                                    // console.log(value);
+                                                    // console.log(color);
 
                                                     geoData.push({
                                                         'type': 'Feature',
                                                         'properties': {
                                                             'orgUnit': el.na,
                                                             'value': value,
+                                                            'color': color
                                                         },
                                                         'geometry': {
                                                             'type': type,
@@ -214,7 +216,6 @@ export class DashboardService {
                                                         }
                                                     })
 
-                                                    this.mapService.legendSet = this.Maplegends;
                                                     this.mapService.getColor(2);
 
                                                     // console.log(geoData);
@@ -222,7 +223,16 @@ export class DashboardService {
                                                     // console.log(element.map.mapViews[0].colorScale)
                                                     if (index === obj.length - 1) {
                                                         this.MapGeoJson = L.geoJSON(geoData as any, {
-                                                            style: this.mapService.style,
+                                                            style: function (feature) {
+                                                            return {
+                                                                weight: 1,
+                                                                opacity: 1,
+                                                                color: 'black',
+                                                                dashArray: '',
+                                                                fillOpacity: 0.7,
+                                                                fillColor: feature.properties.color
+                                                            };
+                                                        },
                                                             onEachFeature: this.mapService.onEachFeature
                                                         });
                                                         this.dahsboardOptions.push({
@@ -242,19 +252,49 @@ export class DashboardService {
                                                         resolve(true);
                                                     }
                                                 });
-                                                // result.metaData.mapData = {
-                                                //     latitude: element.map.latitude,
-                                                //     longitude: element.map.longitude,
-                                                //     zoom: element.map.zoom,
-                                                //     colorScale: element.map.mapViews[0].colorScale,
-                                                //     geoJson: geoData
-                                                // };
-                                            // }
                                         });
 
                                     });
                                     // geoData = [];
                                 }
+                            });
+                        });
+                    }
+                //    Vamos la tratar das tabelas
+                    if (element.type === 'REPORT_TABLE') {
+                        // console.log(element);
+                        this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe((result) => {
+                            // console.log(result);
+                            const columnNames = [{
+                                id: "position",
+                                value: "No."
+
+                            }, {
+                                id: "name",
+                                value: "Name"
+                            },
+                                {
+                                    id: "weight",
+                                    value: "Weight"
+                                },
+                                {
+                                    id: "symbol",
+                                    value: "Symbol"
+                                }];
+                            const ELEMENT_DATA = [{ position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
+                                { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
+                                { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
+                                { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
+                                { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
+                                { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' }
+                            ];
+
+                            this.dahsboardOptions.push({
+                                tableOptions: {
+                                    dataSource: new MatTableDataSource(ELEMENT_DATA),
+                                    displayedColumns: ['position', 'name', 'weight', 'symbol']
+                                } ,
+                                type: element.type.toLowerCase()
                             });
                         });
                     }

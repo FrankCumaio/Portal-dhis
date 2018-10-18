@@ -30,10 +30,10 @@ export class ApiRequestsService {
     getDashboards(): Observable <any> {
         // console.log('olaaaa');
         // console.log(this.connectionService.getApiURI);
-        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn]&fields=:`
-        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
+        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn]&fields=:`
+        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
             + `idName,translations,dashboardItems[:idName,type,id,`
-            + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,organisationUnitLevels,periods],`
+            + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,organisationUnitLevels,periods,columnDimensions,rowDimensions,filterDimensions],`
             + `eventChart[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category],`
             +  `eventReport[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category,filters,columns],`
             + `chart[:idName,translations,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,type,periods,series,category,filterDimensions,organisationUnitLevels,organisationUnits[:idName]]`
@@ -67,15 +67,16 @@ export class ApiRequestsService {
 
 
     prepareForRequest(dashboardItem) {
+//        Esta funcao transforma os dados brutos para que sejam eviadas requisicoes  ao analytics
 // console.log(dashboardItem);
         const dataDimensions = [];
         const periods = [];
         const orgUnits = [];
         const organisationUnitLevels = [];
         let type = ' ';
-        const filtersOptions = [];
-        let series = null;
-        let category = null;
+        let filters = [];
+        let rows = [];
+        let columns = [];
         let program = null;
         let programStage = null;
 if (dashboardItem.type) {
@@ -111,22 +112,47 @@ if (dashboardItem.type) {
             program = dashboardItem[type].program.id;
         }
         // Selecionamos os filtros para a requisicao
-        if (dashboardItem[type].hasOwnProperty('filterDimensions')) {
-            dashboardItem[type].filterDimensions.forEach((item) => {
-                filtersOptions.push(item);
-            });
-        }
+        // if (dashboardItem[type].hasOwnProperty('filterDimensions')) {
+        //     dashboardItem[type].filterDimensions.forEach((item) => {
+        //         filtersOptions.push(item);
+        //     });
+        // }
+        //
+        // if (dashboardItem[type].hasOwnProperty('series')) {
+        //     series = dashboardItem[type].series;
+        // }
+        //
+        // if (dashboardItem[type].hasOwnProperty('category')) {
+        //     category = dashboardItem[type].category;
+        // }
 
-        if (dashboardItem[type].hasOwnProperty('series')) {
-            series = dashboardItem[type].series;
-        }
-
-        if (dashboardItem[type].hasOwnProperty('category')) {
-            category = dashboardItem[type].category;
-        }
         if (dashboardItem[type].hasOwnProperty('programStage')) {
             programStage = dashboardItem[type].programStage.id;
         }
+
+            if (dashboardItem[type].hasOwnProperty('columnDimensions')) {
+                columns = dashboardItem[type].columnDimensions;
+            }
+
+            if (dashboardItem[type].hasOwnProperty('series')) {
+                columns.push(dashboardItem[type].series);
+            }
+
+            if (dashboardItem[type].hasOwnProperty('rowDimensions')) {
+                rows = dashboardItem[type].rowDimensions;
+            }
+
+            if (dashboardItem[type].hasOwnProperty('category')) {
+                rows.push(dashboardItem[type].category);
+            }
+
+            if (dashboardItem[type].hasOwnProperty('filterDimensions')) {
+                filters = dashboardItem[type].filterDimensions;
+            }
+
+            // if (dashboardItem[type].hasOwnProperty('filters')) {
+            //     filters = dashboardItem[type].filters;
+            // }
 
 
         // if (!(this.getPeriods === undefined) && !(this.getPeriods.length === 0)) {
@@ -175,15 +201,16 @@ if (dashboardItem.type) {
     }
 
         return {
-            dataDimensions: dataDimensions,
-            periods: periods,
-            orgUnits: orgUnits,
+            dx: dataDimensions,
+            pe: periods,
+            ou: orgUnits,
             organisationUnitLevels: organisationUnitLevels,
             program: program,
             programStage: programStage,
-            filtersOptions: filtersOptions,
-            series: series,
-            category: category,
+            filters: filters,
+            rows: rows,
+            columns: columns,
+            type: type,
         };
 
     }
@@ -201,7 +228,6 @@ if (dashboardItem.type) {
     }
 
     getItemData(options: any): Observable<any> {
-        // console.log(options);
      let url = null, urlLevls = ``, urlCategories = ``, urlDimensions = ``,wichCategory = null;
 
      if (options.organisationUnitLevels.length > 0) {
@@ -214,47 +240,71 @@ if (dashboardItem.type) {
 
         // formamos as categorias para a url
 
-        //
-        if (options.series === 'ou' && options.orgUnits.length > 0) {
-            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}${urlLevls}&`;
-        }  if (options.series === 'pe' && options.periods.length > 0) {
-            urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
-        }  if (options.series === 'dx' && options.dataDimensions.length > 0) {
-            urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}${urlLevls}&`;
-        }
-
-        if (options.category === 'ou' && options.orgUnits.length > 0) {
-            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';') }${urlLevls}&`;
-        }  if (options.category === 'pe' && options.periods.length > 0) {
-            urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
-        }  if (options.category === 'dx' && options.dataDimensions.length > 0 ) {
-            urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`;
-        }
-
-//        formamos os filtros
-//         console.log(options.filtersOptions);
-
-        options.filtersOptions.forEach((fltr) => {
-            // console.log(fltr)
-            if (fltr === 'dx' && options.dataDimensions.length > 0) {
-                urlDimensions = urlDimensions + `&filter=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
+        options.columns.forEach((column) => {
+            if (column === 'ou' || column === 'pe') {
+                urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el).join(';')}${urlLevls}&`;
+            } else if (column === 'dx') {
+                urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el.id).join(';')}${urlLevls}&`;
             }
+        });
 
-            if (fltr === 'pe' && options.periods.length > 0) {
-                urlDimensions = urlDimensions + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
+        options.rows.forEach((row) => {
+            if (row === 'ou' || row === 'pe') {
+                urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el).join(';')}${urlLevls}&`;
+            } else if (row === 'dx') {
+                urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el.id).join(';')}&`;
             }
-            if (fltr === 'ou' && options.orgUnits.length > 0) {
-                urlDimensions = urlDimensions + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}${urlLevls}`;
+        });
+
+        options.filters.forEach((fltr) => {
+            if (fltr === 'ou' || fltr === 'pe') {
+                urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}${urlLevls}`;
+            } else if (fltr === 'dx') {
+                urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el.id).join(';')}${urlLevls}`;
             }
-        })
+        });
 
-        // Url para os mapas
-
-        if (options.series === null) {
+     // if (options.type === 'reportTable') {
+     //     options.columns.forEach((column) => {
+     //     })
+     // } else if (options.type === 'chart') {
+     //    //
+     //    if (options.series === 'ou' && options.orgUnits.length > 0) {
+     //        urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}${urlLevls}&`;
+     //    }  if (options.series === 'pe' && options.periods.length > 0) {
+     //        urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
+     //    }  if (options.series === 'dx' && options.dataDimensions.length > 0) {
+     //        urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}${urlLevls}&`;
+     //    }
+     //
+     //    if (options.category === 'ou' && options.orgUnits.length > 0) {
+     //        urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';') }${urlLevls}&`;
+     //    }  if (options.category === 'pe' && options.periods.length > 0) {
+     //        urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
+     //    }  if (options.category === 'dx' && options.dataDimensions.length > 0 ) {
+     //        urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`;
+     //    }
+     //
+     //    options.filters.forEach((fltr) => {
+     //        // console.log(fltr)
+     //        urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}${urlLevls}`;
+     //        // if (fltr === 'dx' && options.dataDimensions.length > 0) {
+     //        //     urlDimensions = urlDimensions + `&filter=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
+     //        // }
+     //        //
+     //        // if (fltr === 'pe' && options.periods.length > 0) {
+     //        //     urlDimensions = urlDimensions + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
+     //        // }
+     //        // if (fltr === 'ou' && options.orgUnits.length > 0) {
+     //        //     urlDimensions = urlDimensions + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}${urlLevls}`;
+     //        // }
+     //    });
+     // } else
+         if (options.type === 'map') {
             // console.log('oi');
-            urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';') }${urlLevls}&`
-            + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`
-            + `&filter=pe:${options.periods.map((el) => el).join(';')}`
+            urlDimensions = urlDimensions + `dimension=ou:${options.ou.map((el) => el).join(';') }${urlLevls}&`
+            + `dimension=dx:${options.dx.map((el) => el.id).join(';')}&`
+            + `&filter=pe:${options.pe.map((el) => el).join(';')}`
             // dimension=ou:LEVEL-3;s5DPBsdoE8b&dimension=dx:sVkTp5609pT&filter=pe:THIS_YEAR&displayProperty=NAME
         }
 
