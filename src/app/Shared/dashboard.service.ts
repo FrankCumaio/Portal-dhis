@@ -46,7 +46,6 @@ export class DashboardService {
                 dashboard.dashboardItems.forEach(async (element, intemIndex) => {
                 // this.dashboards[0].dashboardItems.forEach(async (element, intemIndex) => {
                     if (element.type === 'CHART') {
-                        // console.log(element)
                         this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe((result) => {
 
                             let dataDItype = null;
@@ -65,6 +64,10 @@ export class DashboardService {
                             if (element.chart.series === 'dx') {
                                 series = 'dataDimensionItems';
                             }
+
+                            // console.log(element)
+                            // console.log(element.chart.series)
+
 // console.log( series);
 // console.log( element.chart[series]);
                             // Carregamos os dados PAra cada Dimensao, Unidade organizacional ou periodo que se encontra nas series
@@ -79,6 +82,7 @@ export class DashboardService {
                                     serieID = dataDI[dataDItype].id;
                                 }
                                 // console.log(dataDI)
+
                                 result.rows.forEach((row, index) => {
                                     if (row[0] === serieID) {
                                         // console.log (row)
@@ -90,14 +94,16 @@ export class DashboardService {
                                             // console.log(result.metaData);
                                             rowsArray.push({
                                                 'name': result.metaData.items[filterName].name,
-                                                'y': parseInt(row[2])
+                                                'y': parseInt(row[row.length - 1])
                                             });
                                         } else if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE') {
-                                            rowsArray.push(parseInt(row[2]));
+                                            rowsArray.push(parseInt(row[row.length - 1]));
                                         }
                                     }
-                                })
-                                if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE' || element.chart.type === 'PIE') {
+                                });
+
+                        if (element.chart.type === 'COLUMN' || element.chart.type === 'LINE' ||
+                                element.chart.type === 'PIE' || element.chart.type === 'BAR' ) {
                                     if (element.chart.series === 'ou' || element.chart.series === 'pe') {
                                         dataDIArray.push({'name': dataDI.displayName, 'data': rowsArray});
 
@@ -122,6 +128,9 @@ export class DashboardService {
                                         type: element.chart.type.toLowerCase()
                                         // type: 'pie'
                                     },
+                                    credits: {
+                                        enabled: false
+                                    },
                                     title: {
                                         text: element.chart.displayName
                                     },
@@ -129,6 +138,9 @@ export class DashboardService {
                                         categories: xcategories,
                                         crosshair: false
                                     },
+                                    legend: {
+                                        reversed: true
+                                    }
                                 },
                                 type: element.type.toLowerCase()
                             });
@@ -144,13 +156,9 @@ export class DashboardService {
                             const geoData = []
 
                             res.mapViews.forEach( (mapView) => {
+                                // console.log(mapView)
                                 if (mapView.layer !== 'boundary') {
-                                    this.Maplegends = [];
-                                    if (mapView.hasOwnProperty('legendSet')) {
-                                        mapView.legendSet.legends.forEach((legend) => {
-                                            this.Maplegends.push(legend);
-                                        });
-                                    }
+                                    let Maplegends1 = [];
                                     // console.log(this.Maplegends)
                                     this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest({
                                         map: mapView,
@@ -164,6 +172,7 @@ export class DashboardService {
                                                     let type = null;
                                                     let value = null;
                                                     let color = null;
+                                                    const rowsValues: Array<number> = [];
                                                     // Aqui é onde criamos o nosso GeoJson
 
                                                     if (el.ty === 2) {
@@ -189,18 +198,33 @@ export class DashboardService {
 
                                                     result.rows.forEach((row) => {
                                                         if (el.id === row[1]) {
-                                                            value = row[2];
+                                                            value = row[row.length - 1];
                                                         }
+                                                        rowsValues.push(row[row.length - 1]);
                                                     });
+                                                    // console.log(result.rows)
                                                     // console.log(coordenadas);
                                                     // console.log(geoData);
-                                                    this.mapService.legendSet = this.Maplegends;
-                                                    this.Maplegends.forEach((legend) => {
-                                                        if (value >= legend.startValue && value <= legend.endValue) {
-                                                            color = legend.color;
-                                                        }
-                                                    });
+                                                    // this.mapService.legendSet = this.Maplegends;
+                                                    if (mapView.hasOwnProperty('legendSet')) {
+                                                        mapView.legendSet.legends.forEach((legend) => {
+                                                            Maplegends1.push(legend);
+                                                        });
+                                                    } else {
+                                                        // console.log(mapView.colorScale.split(','))
+                                                        Maplegends1 = this.mapService.createLegendSet(Math.min(...rowsValues), Math.max(...rowsValues), mapView.classes, mapView.colorScale)
+                                                    }
+                                                        Maplegends1.forEach((legend) => {
+                                                            if (value >= legend.startValue && value <= legend.endValue) {
+                                                                color = legend.color;
+                                                                // console.log(color);
+                                                            }
+                                                        });
+
+
                                                     // console.log(value);
+                                                    // let a = this.mapService.getColor(value);
+                                                    // console.log(a);
                                                     // console.log(color);
 
                                                     geoData.push({
@@ -216,11 +240,11 @@ export class DashboardService {
                                                         }
                                                     })
 
-                                                    this.mapService.getColor(2);
+                                                    // this.mapService.getColor(2);
 
                                                     // console.log(geoData);
                                                     // i++;
-                                                    // console.log(element.map.mapViews[0].colorScale)
+                                                    // console.log(element)
                                                     if (index === obj.length - 1) {
                                                         this.MapGeoJson = L.geoJSON(geoData as any, {
                                                             style: function (feature) {
@@ -247,7 +271,8 @@ export class DashboardService {
                                                                     })
                                                                 ],
                                                             },
-                                                            type: element.type.toLowerCase()
+                                                            type: element.type.toLowerCase(),
+                                                            displayName: element.map.displayName
                                                         });
                                                         resolve(true);
                                                     }

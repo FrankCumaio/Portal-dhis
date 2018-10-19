@@ -68,14 +68,32 @@ export class MapService {
     }
 
     getColor(d) {
-        // console.log(this.legendSet)
-        this.legendSet.forEach((legend) => {
-        if (d >= legend.startValue || d <= legend.endValue) {
-            console.log(legend.color)
-            return legend.color;
-        }
-        });
+        let cor = null;
+            // console.log(this.legendSet)
+            this.legendSet.forEach((legend) => {
+                if (d >= legend.startValue || d <= legend.endValue) {
+                    //
+                     return legend.color;
+                }
+            });
     }
+
+    createLegendSet (start, end, classes, colorScale) {
+        colorScale = colorScale.split(',')
+        const intervalo = (end - start) / classes;
+        let target = 0;
+        const legendSet = [];
+        for (let index = 0; index < classes; index++) {
+            target = start + intervalo
+            legendSet.push({
+                startValue: start,
+                endValue: target,
+                color: colorScale[index]
+            });
+            start = start + intervalo;
+        }
+        return legendSet;
+     }
 
     style(feature) {
         // console.log(this.getPeriods)
@@ -102,7 +120,7 @@ export class MapService {
             dashArray: '',
             fillOpacity: 0.7,
             fillColor: cor
-        }
+        };
     }
 
     // highlightFeature(e) {

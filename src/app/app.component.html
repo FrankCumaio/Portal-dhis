@@ -12,7 +12,6 @@
 <mat-card
           *ngIf="dashItem.type === 'chart'">
 <highcharts-chart
-        *ngIf="dashItem.chartOpt.chart.type === 'column' || dashItem.chartOpt.chart.type === 'line' || dashItem.chartOpt.chart.type === 'pie' || dashItem.chartOpt.chart.type === 'bar'"
         [Highcharts]="Highcharts"
         [options]="dashItem.chartOpt"
 
@@ -21,6 +20,8 @@
   </mat-card>
 
 <mat-card *ngIf="dashItem.type === 'map'">
+    <div class="highcharts-title" style="color:#333333;font-size:18px;fill:#333333; text-align: center"><span>{{dashItem.displayName}}</span></div>
+    <!--<text x="306" text-anchor="middle" class="highcharts-title" data-z-index="4" style="color:#333333;font-size:18px;fill:#333333;" y="24"><tspan>{{dashItem.displayName}}</tspan></text>-->
     <div class="map-container" style="height: 450px;" id="map{{i}}" class="map"
          leaflet
          (leafletMapReady)="onMapReady($event)"

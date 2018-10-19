@@ -30,8 +30,8 @@ export class ApiRequestsService {
     getDashboards(): Observable <any> {
         // console.log('olaaaa');
         // console.log(this.connectionService.getApiURI);
-        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn]&fields=:`
-        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
+        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
+        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
             + `idName,translations,dashboardItems[:idName,type,id,`
             + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,organisationUnitLevels,periods,columnDimensions,rowDimensions,filterDimensions],`
             + `eventChart[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category],`
@@ -231,8 +231,9 @@ if (dashboardItem.type) {
      let url = null, urlLevls = ``, urlCategories = ``, urlDimensions = ``,wichCategory = null;
 
      if (options.organisationUnitLevels.length > 0) {
-         urlLevls = `;` + options.organisationUnitLevels.map((el) => el).join(';');
+         urlLevls = options.organisationUnitLevels.map((el) => el).join(';');
      }
+     // console.log(urlLevls)
         // verificamos e definimos os filtros do item para formar a requisição
 
         // formamos as dimensoes para a url
@@ -241,26 +242,38 @@ if (dashboardItem.type) {
         // formamos as categorias para a url
 
         options.columns.forEach((column) => {
-            if (column === 'ou' || column === 'pe') {
-                urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el).join(';')}${urlLevls}&`;
-            } else if (column === 'dx') {
-                urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el.id).join(';')}${urlLevls}&`;
+            if (column === 'ou') {
+                urlDimensions = urlDimensions + `dimension=${column}:${urlLevls};${options[column].map((el) => el).join(';')}&`;
+            }
+            if (column === 'pe') {
+                urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el).join(';')}&`;
+            }
+            if (column === 'dx') {
+                urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el.id).join(';')}&`;
             }
         });
 
         options.rows.forEach((row) => {
-            if (row === 'ou' || row === 'pe') {
-                urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el).join(';')}${urlLevls}&`;
-            } else if (row === 'dx') {
+            if (row === 'ou') {
+                urlDimensions = urlDimensions + `dimension=${row}:${urlLevls};${options[row].map((el) => el).join(';')}&`;
+            }
+            if ( row === 'pe') {
+                urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el).join(';')}&`;
+            }
+            if (row === 'dx') {
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el.id).join(';')}&`;
             }
         });
 
         options.filters.forEach((fltr) => {
-            if (fltr === 'ou' || fltr === 'pe') {
-                urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}${urlLevls}`;
-            } else if (fltr === 'dx') {
-                urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el.id).join(';')}${urlLevls}`;
+            if (fltr === 'ou') {
+                urlDimensions = urlDimensions + `dimension=${fltr}:${urlLevls};${options[fltr].map((el) => el).join(';')}&`;
+            }
+            if (fltr === 'pe') {
+                urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}&`;
+            }
+            if (fltr === 'dx') {
+                urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el.id).join(';')}&`;
             }
         });
 
@@ -302,7 +315,7 @@ if (dashboardItem.type) {
      // } else
          if (options.type === 'map') {
             // console.log('oi');
-            urlDimensions = urlDimensions + `dimension=ou:${options.ou.map((el) => el).join(';') }${urlLevls}&`
+            urlDimensions = urlDimensions + `dimension=ou:${urlLevls};${options.ou.map((el) => el).join(';') }&`
             + `dimension=dx:${options.dx.map((el) => el.id).join(';')}&`
             + `&filter=pe:${options.pe.map((el) => el).join(';')}`
             // dimension=ou:LEVEL-3;s5DPBsdoE8b&dimension=dx:sVkTp5609pT&filter=pe:THIS_YEAR&displayProperty=NAME
