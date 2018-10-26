@@ -1,5 +1,5 @@
 ///<reference path="../../node_modules/@types/node/index.d.ts"/>
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit, Inject, ElementRef, AfterViewInit} from '@angular/core';
 import * as Highcharts from 'highcharts';
 import * as HighMaps from 'highcharts/highmaps';
 import * as HC_exporting from 'highcharts/modules/exporting';
@@ -8,6 +8,11 @@ import { ApiRequestsService } from './Shared/apiRequests.service';
 import * as L from 'leaflet';
 import {MapService} from './Map/map.service';
 import {DashboardService} from './Shared/dashboard.service';
+import 'pivottable/dist/pivot.js';
+import 'pivottable/dist/pivot.min.css';
+import jQuery from 'jquery';
+
+declare var $: any;
 
 HC_map( Highcharts);
 HC_exporting( Highcharts);
@@ -24,7 +29,8 @@ export class AppComponent implements OnInit {
     private title: string;
     public chartOptions: any = []; chartMap = [];
     public Highcharts = Highcharts;
-    private dashboards: any;
+    public dashboards: any;
+    public selectedDashboard: any;
     private series = [];
     public MapGeoJson;
     public idDiv = 1;
@@ -36,8 +42,8 @@ export class AppComponent implements OnInit {
     private Mapseries = Array<{ value: number, code: string}>();
     private  OrgUnits = [];
 
-    constructor(public dashboardService: DashboardService) {
-        this.chartOptions = dashboardService.getDashboards();
+    constructor(public dashboardService: DashboardService,
+                @Inject(ElementRef)el: ElementRef) {
     }
 
     ngOnInit() {
@@ -45,8 +51,15 @@ export class AppComponent implements OnInit {
             colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4']
         });
         console.log("AppComponent: OnInit()");
+        this.getData(0);
     }
 
+getData(dashboardIndex) {
+        console.log("changed")
+    this.chartOptions = this.dashboardService.getDashboardItems(dashboardIndex);
+    this.dashboards = this.dashboardService.getDashboards();
+    this.selectedDashboard = this.dashboardService.getSelectedDashboard();
+}
     onMapReady(map: L.Map) {
         setTimeout(() => {
             map.invalidateSize();
@@ -69,4 +82,31 @@ export class AppComponent implements OnInit {
             console.log(map);
         }, 10000);
     }
+
+    changeReportType(i: number, type: string, chartType?) {
+        if (type === 'CHART') {
+            this.chartOptions[i].chartType = chartType;
+            this.chartOptions[i].renderedType = type;
+            // if (!$(`#chart-container${i}`).hasClass('maximizar') && $(`#rep${i}`).hasClass('fullscreen-div')) {
+            //     $(`#chart-container${i}`).toggleClass('maximizar');
+                $(`#rep${i}`).focus();
+            // }
+        } else if (type === 'REPORT_TABLE') {
+            // if (!$(`#chart-container${i}`).hasClass('maximizar') && $(`#rep${i}`).hasClass('fullscreen-div')) {
+            //     $(`#chart-container${i}`).toggleClass('maximizar');
+                $(`#rep${i}`).focus();
+            // }
+            this.chartOptions[i].renderedType = type;
+            this.chartOptions[i].chartType = 'bar';
+        } else if (type === 'MAP') {
+            this.chartOptions[i].renderedType = type;
+            console.log(type)
+            // L.map('map' + i)
+            //  this.onMapReady(L.map('map' + i));
+        }
+        // this.selectedType = type;
+        $(`#rep${i}`).focus();
+    }
+
+
 }

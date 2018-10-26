@@ -4,48 +4,116 @@ import { HighchartsChartModule } from 'highcharts-angular';
 import { AppComponent } from './app.component';
 import { MapService } from './Map/map.service';
 import { ApiRequestsService} from './Shared/apiRequests.service';
-import { HttpClientModule} from '@angular/common/http';
+import { HttpClientModule, HttpClient} from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NavegacaoComponent } from './navegacao/navegacao.component';
 import { LayoutModule } from '@angular/cdk/layout';
-import { MatToolbarModule, MatButtonModule, MatSidenavModule, MatIconModule, MatListModule,
-    MatCardModule, MatGridListModule, MatTableModule } from '@angular/material';
 import { LeafletModule } from '@asymmetrik/ngx-leaflet';
 import {ConnectionService} from './Shared/connection.service';
-import {DashboardService} from "./Shared/dashboard.service";
+import { PivotTableComponent } from './pivot-table/pivot-table.component';
+import {TranslateModule, TranslateLoader} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
 
-export function dahsboardServiceFactory(provider: DashboardService) {
-    return () => provider.load();
+// Angular Material Components
+import {MatCheckboxModule} from '@angular/material';
+import {MatButtonModule} from '@angular/material';
+import {MatInputModule} from '@angular/material/input';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatRadioModule} from '@angular/material/radio';
+import {MatSelectModule} from '@angular/material/select';
+import {MatSliderModule} from '@angular/material/slider';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
+import {MatMenuModule} from '@angular/material/menu';
+import {MatSidenavModule} from '@angular/material/sidenav';
+import {MatToolbarModule} from '@angular/material/toolbar';
+import {MatListModule} from '@angular/material/list';
+import {MatGridListModule} from '@angular/material/grid-list';
+import {MatCardModule} from '@angular/material/card';
+import {MatStepperModule} from '@angular/material/stepper';
+import {MatTabsModule} from '@angular/material/tabs';
+import {MatExpansionModule} from '@angular/material/expansion';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import {MatChipsModule} from '@angular/material/chips';
+import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
+import {MatDialogModule} from '@angular/material/dialog';
+import {MatTooltipModule} from '@angular/material/tooltip';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
+import {MatTableModule} from '@angular/material/table';
+import {MatSortModule} from '@angular/material/sort';
+import {MatPaginatorModule} from '@angular/material/paginator';
+// export function dahsboardServiceFactory(provider: DashboardService) {
+//     return () => provider.load();
+// }
+export function HttpLoaderFactory(http: HttpClient) {
+    return new TranslateHttpLoader(http);
 }
 
 @NgModule({
   declarations: [
     AppComponent,
     NavegacaoComponent,
+    PivotTableComponent,
   ],
   imports: [
     BrowserModule,
+      BrowserModule,
+      BrowserAnimationsModule,
+      MatCheckboxModule,
+      MatCheckboxModule,
+      MatButtonModule,
+      MatInputModule,
+      MatAutocompleteModule,
+      MatDatepickerModule,
+      MatFormFieldModule,
+      MatRadioModule,
+      MatSelectModule,
+      MatSliderModule,
+      MatSlideToggleModule,
+      MatMenuModule,
+      MatSidenavModule,
+      MatToolbarModule,
+      MatListModule,
+      MatGridListModule,
+      MatCardModule,
+      MatStepperModule,
+      MatTabsModule,
+      MatExpansionModule,
+      MatButtonToggleModule,
+      MatChipsModule,
+      MatIconModule,
+      MatProgressSpinnerModule,
+      MatProgressBarModule,
+      MatDialogModule,
+      MatTooltipModule,
+      MatSnackBarModule,
+      MatTableModule,
+      MatSortModule,
+      MatPaginatorModule,
       HighchartsChartModule,
       HttpClientModule,
       BrowserAnimationsModule,
       LayoutModule,
-      MatToolbarModule,
-      MatButtonModule,
-      MatSidenavModule,
-      MatIconModule,
-      MatListModule,
-      MatCardModule,
-      MatGridListModule,
-      MatTableModule,
       LeafletModule.forRoot(),
+      TranslateModule.forRoot(),
+      TranslateModule.forRoot({
+          loader: {
+              provide: TranslateLoader,
+              useFactory: HttpLoaderFactory,
+              deps: [HttpClient]
+          }
+      }),
   ],
   providers: [
       ApiRequestsService,
       ConnectionService,
       MapService,
-      { provide: APP_INITIALIZER, useFactory: dahsboardServiceFactory, deps: [DashboardService], multi: true }
+      // { provide: APP_INITIALIZER, useFactory: dahsboardServiceFactory, deps: [DashboardService], multi: true }
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [NavegacaoComponent]
 })
 export class AppModule { }
 

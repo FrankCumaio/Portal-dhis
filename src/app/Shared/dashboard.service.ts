@@ -4,15 +4,15 @@ import {ApiRequestsService} from './apiRequests.service';
 import {MapService} from '../Map/map.service';
 import {MatPaginator, MatTableDataSource} from '@angular/material';
 import {forEach} from "@angular/router/src/utils/collection";
-import {st} from "@angular/core/src/render3";
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
     private title: string;
-    public dahsboardOptions: any = []; chartMap = [];
-    private dashboards: any;
+    public dashboardItems: any = []; chartMap = [];
+    private dashboards: any = [];
+    private selectedDashboard: any = [];
     private series = [];
     public MapGeoJson;
     public Maplegends = [];
@@ -30,23 +30,52 @@ export class DashboardService {
       public mapService: MapService,
   ) {}
 
-    public getDashboards() {
-        return this.dahsboardOptions;
+    public getDashboardItems(dashboardPos) {
+        // Limpamos as variaveis dos valores antigos
+        this.dashboardItems = [];
+        this.selectedDashboard = [];
+        this.dashboards = [];
+
+        this.load(dashboardPos)
+        return this.dashboardItems;
     }
 
-    load() {
+    public getDashboards() {
+        console.log(this.dashboards)
+
+        return  this.dashboards;
+    }
+    public getSelectedDashboard() {
+      console.log(this.selectedDashboard)
+        return this.selectedDashboard;
+    }
+    load(dashboardPos) {
+
         return new Promise((resolve, reject) => {
         this.apiRequestsService.getDashboards().subscribe(resultado => {
-            // console.log(resultado.dashboards);
+
+            // Verificamos se a lista das dashboards ja havia sido carregada previamente
+
             // Carregamos todas dashboards do sistema e atribuimos a variavel dashboards
-            this.dashboards = resultado.dashboards;
-            // Percoremos cada dashboard para transformar os elementos
-            this.dashboards.forEach((dashboard, i) => {
+            console.log(resultado.dashboards)
+
+            for (let item of resultado.dashboards) {
+                this.dashboards.push(item);
+            }
+
+
                 // Percoremos os items da dashboard para formatação dos dados
-                dashboard.dashboardItems.forEach(async (element, intemIndex) => {
+           this.selectedDashboard.push(resultado.dashboards[dashboardPos]);
+            this.selectedDashboard[0].dashboardItems.forEach(async (element, intemIndex) => {
                 // this.dashboards[0].dashboardItems.forEach(async (element, intemIndex) => {
+                    this.dashboards.push(this.selectedDashboard);
                     if (element.type === 'CHART') {
                         this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe((result) => {
+                            // Criamos tabela para o grafico
+                            const rowDimensions = [element.series];
+                            const columnDimensions = [element.category];
+                            // this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
+
 
                             let dataDItype = null;
                             const xcategories = [];
@@ -121,7 +150,7 @@ export class DashboardService {
                             // console.log([49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]);
                             // console.log(this.series)
                             // this.title = ;
-                            this.dahsboardOptions.push({
+                            this.dashboardItems.push({
                                 chartOpt: {
                                     series: this.series,
                                     chart: {
@@ -132,7 +161,7 @@ export class DashboardService {
                                         enabled: false
                                     },
                                     title: {
-                                        text: element.chart.displayName
+                                        text: ''
                                     },
                                     xAxis: {
                                         categories: xcategories,
@@ -142,7 +171,9 @@ export class DashboardService {
                                         reversed: true
                                     }
                                 },
-                                type: element.type.toLowerCase()
+                                type: element.type,
+                                renderedType: element.type,
+                                displayName: element.chart.displayName
                             });
 
 
@@ -164,7 +195,6 @@ export class DashboardService {
                                         map: mapView,
                                         type: 'map'
                                     })).subscribe((result) => {
-
                                         this.mapService.criarGeoJson(mapView).subscribe((obj) => {
 
                                             let coordenadas = [];
@@ -259,7 +289,7 @@ export class DashboardService {
                                                         },
                                                             onEachFeature: this.mapService.onEachFeature
                                                         });
-                                                        this.dahsboardOptions.push({
+                                                        this.dashboardItems.push({
                                                             mapOptions: {
                                                                 zoom: element.map.zoom,
                                                                 center: L.latLng(element.map.latitude, element.map.longitude),
@@ -271,9 +301,11 @@ export class DashboardService {
                                                                     })
                                                                 ],
                                                             },
-                                                            type: element.type.toLowerCase(),
+                                                            type: element.type,
+                                                            renderedType: element.type,
                                                             displayName: element.map.displayName
                                                         });
+                                                        this.dashboards = resultado.dashboards;
                                                         resolve(true);
                                                     }
                                                 });
@@ -288,45 +320,64 @@ export class DashboardService {
                 //    Vamos la tratar das tabelas
                     if (element.type === 'REPORT_TABLE') {
                         // console.log(element);
+
                         this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe((result) => {
-                            // console.log(result);
-                            const columnNames = [{
-                                id: "position",
-                                value: "No."
-
-                            }, {
-                                id: "name",
-                                value: "Name"
-                            },
-                                {
-                                    id: "weight",
-                                    value: "Weight"
-                                },
-                                {
-                                    id: "symbol",
-                                    value: "Symbol"
-                                }];
-                            const ELEMENT_DATA = [{ position: 1, name: 'Hydrogen', weight: 1.0079, symbol: 'H' },
-                                { position: 2, name: 'Helium', weight: 4.0026, symbol: 'He' },
-                                { position: 3, name: 'Lithium', weight: 6.941, symbol: 'Li' },
-                                { position: 4, name: 'Beryllium', weight: 9.0122, symbol: 'Be' },
-                                { position: 5, name: 'Boron', weight: 10.811, symbol: 'B' },
-                                { position: 6, name: 'Carbon', weight: 12.0107, symbol: 'C' }
-                            ];
-
-                            this.dahsboardOptions.push({
-                                tableOptions: {
-                                    dataSource: new MatTableDataSource(ELEMENT_DATA),
-                                    displayedColumns: ['position', 'name', 'weight', 'symbol']
-                                } ,
-                                type: element.type.toLowerCase()
-                            });
+                            const rowDimensions = element.reportTable.rowDimensions;
+                            const columnDimensions = element.reportTable.columnDimensions;
+                            console.log(rowDimensions);
+                            console.log(columnDimensions);
+                    this.builTable(element, result, rowDimensions, columnDimensions,'reportTable');
                         });
                     }
                 });
-            });
+            // });
         });
         // console.log(this.chartOptions);
     });
+    }
+    builTable(element, result, rowDimensions, columnDimensions, type) {
+        const rowNames = [];
+        let tableRows = [];
+        const tableRowDimensions = [];
+        const tableColumnDimensions = [];
+        // console.log(rowDimensions);
+        // console.log(columnDimensions);
+
+        result.headers.forEach((header) => {
+            rowNames.push(header.column);
+        });
+
+        // traduzimos os elementos usados para identificar as linhas para a tabela porque vem representados pelos id
+        rowDimensions.forEach((row) => {
+            tableRowDimensions.push(result.metaData.items[row].name);
+        })
+        // traduzimos os elementos usados para identificar as colunas para a tabela porque vem representados pelos id
+        columnDimensions.forEach((column) => {
+            tableColumnDimensions.push(result.metaData.items[column].name);
+        })
+        // traduzimos os elementos presentes na resposta rows do analytics porque vem representados pelos id
+        tableRows = result.rows
+        tableRows.forEach((row) => {
+            row.forEach((rowElement, index) => {
+                if (result.metaData.items[rowElement] !== undefined) {
+                    row[index] = result.metaData.items[rowElement].name;
+                }
+            });
+        })
+        // tableRows = result.rows
+        // colocamos os nomes dos elementos que representam a estrutura na primeira linha
+        tableRows.unshift(rowNames);
+
+        this.dashboardItems.push({
+            tableData: {
+                rowsValues: tableRows,
+                rowDimensions: tableRowDimensions,
+                columnDimensions: tableColumnDimensions
+            } ,
+            type: element.type,
+            renderedType: element.type,
+            displayName: element[type].displayName
+
+        });
     }
 }

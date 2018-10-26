@@ -1,4 +1,27 @@
+/*@import "~pivottable/dist/pivot.css";*/
 table {
     width: 100%;
     height: 450px;
+}
+ mat-card-title {
+     color:#333333;
+     font-size:18px !important;
+     fill:#333333;
+     text-align: center
+ }
+
+.example-container {
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    padding-top: 75px;
+
+}
+.sidenav {
+
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 250px;
+    padding-top: 100px;
+
 }

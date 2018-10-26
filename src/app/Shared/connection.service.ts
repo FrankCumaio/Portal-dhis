@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class ConnectionService {
 
-    //   apiURI = 'https://play.dhis2.org/2.29';
+    //   apiURI = 'https://play.dhis2.org/2.30';
     // username = 'admin';
     //   password = 'district'
 

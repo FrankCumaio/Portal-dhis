@@ -1,0 +1,19 @@
+{
+    "navbar": {
+        "home": "Inicio",
+        "report": "Relatórios",
+        "downloads": "Downloads",
+        "title": "SISMA - Portal público de dados"
+
+    },
+    "filters": {
+        "title": "Filtros",
+        "reset_btn": "Redefinir Filtros",
+        "allReports": "Todos relatórios",
+        "allReportGroups": "Todos grupos relatórios"
+    },
+    "reports": {
+        "all": "Todos os Relatórios",
+        "selected": "Relatórios Selecionados"
+    }
+}

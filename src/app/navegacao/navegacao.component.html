@@ -1,30 +1,37 @@
-<mat-sidenav-container class="sidenav-container">
-  <mat-sidenav
-    #drawer
-    class="sidenav"
-    fixedInViewport="true"
-    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
-    [mode]="(isHandset$ | async) ? 'over' : 'side'"
-    [opened]="!(isHandset$ | async)">
-    <mat-toolbar color="primary">Menu</mat-toolbar>
-    <mat-nav-list>
-      <a mat-list-item href="#">Link 1</a>
-      <a mat-list-item href="#">Link 2</a>
-      <a mat-list-item href="#">Link 3</a>
-    </mat-nav-list>
-  </mat-sidenav>
-  <mat-sidenav-content>
-    <mat-toolbar color="primary">
-      <button
-        type="button"
-        aria-label="Toggle sidenav"
-        mat-icon-button
-        (click)="drawer.toggle()"
-        *ngIf="isHandset$ | async">
-        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
-      </button>
-      <span>portalTests</span>
-    </mat-toolbar>
-    <!-- Add Content Here -->
-  </mat-sidenav-content>
-</mat-sidenav-container>
+<nav class="navbar navbar-toggleable-md fixed-top navbar-inverse bg-primary bg-faded">
+  <button class="navbar-toggler navbar-toggler-right" type="button" data-target="#navbarSupportedContent">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <a class="navbar-brand" routerLink="#">
+    <img alt="Brand" src="assets/img/logo.png" width="38px" height="38px" style="margin-right: 10px; margin-bottom: 10px"> {{ 'navbar.title' | translate }}
+  </a>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav ml-auto">
+      <!-- <li class="nav-item active">
+          <a class="nav-link" routerLink="/home" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed"> {{ 'navbar.home' | translate }} </a>
+      </li> -->
+
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/reports" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.report' | translate }}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" routerLink="/downloads" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.downloads' | translate }}</a>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{currentLang}}
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          <a *ngFor="let lang of languages" [id]="lang.code" class="dropdown-item" href="#" (click)="changeLang(lang)">{{lang.label}}</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+<app-root>
+</app-root>
+<mat-progress-spinner [hidden]="!waiting" class="example-margin" [color]="color" [mode]="mode">
+</mat-progress-spinner>
+
