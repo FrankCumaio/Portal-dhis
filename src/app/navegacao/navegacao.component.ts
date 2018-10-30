@@ -25,9 +25,7 @@ export class NavegacaoComponent {
     ];
     public currentLang = 'Português';
     public currentLocale = 'pt';
-    public color = 'primary';
-    public mode = 'indeterminate';
-    public waiting = false;
+
 
     constructor(private translate: TranslateService) {
         translate.addLangs(['en', 'fr', 'pt']);
@@ -50,17 +48,11 @@ export class NavegacaoComponent {
     }
 
     changeLang(language) {
-        this.waiting = true;
 
         this.currentLang = language.label;
         this.currentLocale = language.code;
 
         this.translate.use(language.code);
-
-        setTimeout(function() {
-            this.waiting = false;
-            console.log(this.waiting);
-        }.bind(this), 1500);
 
         this.isCollapsed = !this.isCollapsed
     }

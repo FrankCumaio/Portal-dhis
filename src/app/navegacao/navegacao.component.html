@@ -1,37 +1,71 @@
-<nav class="navbar navbar-toggleable-md fixed-top navbar-inverse bg-primary bg-faded">
-  <button class="navbar-toggler navbar-toggler-right" type="button" data-target="#navbarSupportedContent">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <a class="navbar-brand" routerLink="#">
-    <img alt="Brand" src="assets/img/logo.png" width="38px" height="38px" style="margin-right: 10px; margin-bottom: 10px"> {{ 'navbar.title' | translate }}
-  </a>
+<!--<nav class="navbar navbar-toggleable-md fixed-top navbar-inverse bg-primary bg-faded">-->
+  <!--<button class="navbar-toggler navbar-toggler-right" type="button" data-target="#navbarSupportedContent">-->
+    <!--<span class="navbar-toggler-icon"></span>-->
+  <!--</button>-->
+  <!--<a class="navbar-brand" routerLink="#">-->
+    <!--<img alt="Brand" src="assets/img/logo.png" width="38px" height="38px" style="margin-right: 10px; margin-bottom: 10px"> {{ 'navbar.title' | translate }}-->
+  <!--</a>-->
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav ml-auto">
-      <!-- <li class="nav-item active">
+  <!--<div class="collapse navbar-collapse" id="navbarSupportedContent">-->
+    <!--<ul class="navbar-nav ml-auto">-->
+      <!--&lt;!&ndash; <li class="nav-item active">-->
+          <!--<a class="nav-link" routerLink="/home" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed"> {{ 'navbar.home' | translate }} </a>-->
+      <!--</li> &ndash;&gt;-->
+
+      <!--<li class="nav-item">-->
+        <!--<a class="nav-link" routerLink="/reports" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.report' | translate }}</a>-->
+      <!--</li>-->
+      <!--<li class="nav-item">-->
+        <!--<a class="nav-link" routerLink="/downloads" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.downloads' | translate }}</a>-->
+      <!--</li>-->
+
+      <!--<li class="nav-item dropdown">-->
+        <!--<a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+          <!--{{currentLang}}-->
+        <!--</a>-->
+        <!--<div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">-->
+          <!--<a *ngFor="let lang of languages" [id]="lang.code" class="dropdown-item" href="#" (click)="changeLang(lang)">{{lang.label}}</a>-->
+        <!--</div>-->
+      <!--</li>-->
+    <!--</ul>-->
+  <!--</div>-->
+<!--</nav>-->
+<header>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <div class="container-fluid">
+      <button class="btn btn-dark d-inline-block d-lg-none ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-align-justify"></i>
+      </button>
+      <a class="navbar-brand" routerLink="#">
+      <img alt="Brand" src="assets/img/logo.png" width="38px" height="38px" style="margin-right: 10px; margin-bottom: 10px"> {{ 'navbar.title' | translate }}
+      </a>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="nav navbar-nav ml-auto">
+          <!-- <li class="nav-item active">
           <a class="nav-link" routerLink="/home" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed"> {{ 'navbar.home' | translate }} </a>
-      </li> -->
+          </li> -->
 
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/reports" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.report' | translate }}</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" routerLink="/downloads" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.downloads' | translate }}</a>
-      </li>
+          <li class="nav-item">
+          <a class="nav-link" routerLink="/reports" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.report' | translate }}</a>
+          </li>
+          <li class="nav-item">
+          <a class="nav-link" routerLink="/downloads" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.downloads' | translate }}</a>
+          </li>
 
-      <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           {{currentLang}}
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
           <a *ngFor="let lang of languages" [id]="lang.code" class="dropdown-item" href="#" (click)="changeLang(lang)">{{lang.label}}</a>
-        </div>
-      </li>
-    </ul>
-  </div>
-</nav>
-<app-root>
-</app-root>
-<mat-progress-spinner [hidden]="!waiting" class="example-margin" [color]="color" [mode]="mode">
-</mat-progress-spinner>
+          </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<app-report>
+</app-report>
 

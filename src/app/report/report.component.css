@@ -1,0 +1,59 @@
+mat-panel-title, .mat-card-content, .mat-card-header .mat-card-title, .mat-card-subtitle {
+    color:#333333;
+    font-size:18px !important;
+    fill:#333333;
+}
+
+.report-body {
+padding-right: 0 !important;
+}
+mat-card {
+    text-align: center;
+    margin: 0;
+    margin-bottom: 15px;
+
+}
+mat-button-toogle {
+    color: #212529 !important;
+}
+.reports-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.breadcrumb-dashName {
+    padding-top: 15px;
+    padding-right: 10px;
+    padding-left: 10px;
+    align-items: center;
+    font-size: 18px;
+}
+
+/* ---------------------------------------------------
+    SIDEBAR STYLE
+----------------------------------------------------- */
+
+@media screen and (min-width: 800px) {
+    .sidenav {
+        padding-top: 15px;
+        padding-left: 10px;
+        width: 300px;
+        position: fixed;
+        z-index: 1;
+    }
+
+    .main {
+        margin-left: 300px; /* Same width as the sidebar + left position in px */
+    }
+}
+
+@media screen and (max-width: 800px) {
+.sidenav {
+    padding-top: 55px;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+}
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}

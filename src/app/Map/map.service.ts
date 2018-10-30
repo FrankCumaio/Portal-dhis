@@ -61,7 +61,7 @@ export class MapService {
         // console.log("MApviews")
 
         return this.http.get(`${this.connectionService.apiURI}/api/maps/` + mapId + `.json?`
-            + `fields=:idName,mapViews[:idName,layer,organisationUnitLevels,colorScale,classes,opacity,translations,dataDimensionItems`
+            + `fields=:idName,mapViews[:idName,columns,rows,layer,organisationUnitLevels,colorScale,classes,opacity,translations,dataDimensionItems`
             + `[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,periods,`
             + `legendSet[*,legends[*]],filters,organisationUnits[:idName]]`,
             {headers: this.headers});
@@ -79,12 +79,12 @@ export class MapService {
     }
 
     createLegendSet (start, end, classes, colorScale) {
-        colorScale = colorScale.split(',')
+        colorScale = colorScale.split(',');
         const intervalo = (end - start) / classes;
         let target = 0;
         const legendSet = [];
         for (let index = 0; index < classes; index++) {
-            target = start + intervalo
+            target = start + intervalo;
             legendSet.push({
                 startValue: start,
                 endValue: target,
@@ -166,6 +166,7 @@ export class MapService {
             });
         });
     }
+
 
 
 

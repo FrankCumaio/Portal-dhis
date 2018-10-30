@@ -28,15 +28,15 @@ export class ApiRequestsService {
 
 
     getDashboards(): Observable <any> {
-        // console.log('olaaaa');
-        // console.log(this.connectionService.getApiURI);
+        // ('olaaaa');
+        // (this.connectionService.getApiURI);
         return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
         // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
             + `idName,translations,dashboardItems[:idName,type,id,`
-            + `reportTable[:idName,dataDimensionItems,relativePeriods,organisationUnits,organisationUnitLevels,periods,columnDimensions,rowDimensions,filterDimensions],`
-            + `eventChart[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category],`
-            +  `eventReport[:idName,dataElementDimensions,relativePeriods,organisationUnits,periods,program,programStage,series,category,filters,columns],`
-            + `chart[:idName,translations,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,type,periods,series,category,filterDimensions,organisationUnitLevels,organisationUnits[:idName]]`
+            + `reportTable[:idName,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],organisationUnits[:idName],*],`
+            + `eventChart[:all],`
+            +  `eventReport[:all],`
+            + `chart[:idName,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],organisationUnits[:idName],*]`
             + `map[:idName, translations,latitude,longitude,zoom]`,
             { headers: this.headers });
 
@@ -44,7 +44,7 @@ export class ApiRequestsService {
 
 
     getDataDimensionName(id, type)  {
-        // console.log(type);
+        // (type);
         this.http.get(`${this.connectionService.apiURI}/api/` + type + `s/` + id + `.json?fields=:`
             + `idName`,
             { headers: this.headers }).subscribe((result:any) => {
@@ -59,7 +59,7 @@ export class ApiRequestsService {
     //   })
     // }
     // getMap(token: any, Mapid: number): Observable<any> {
-    //     console.log('olaaa2a');
+    //     ('olaaa2a');
     //
     //     return this.http.get(`${this.connectionService.apiURI}/api/maps/${Mapid}/data`,
     //         {headers: this.headers, responseType: ResponseContentType.Blob}).map((res: Response) => res.blob());
@@ -68,7 +68,7 @@ export class ApiRequestsService {
 
     prepareForRequest(dashboardItem) {
 //        Esta funcao transforma os dados brutos para que sejam eviadas requisicoes  ao analytics
-// console.log(dashboardItem);
+(dashboardItem);
         const dataDimensions = [];
         const periods = [];
         const orgUnits = [];
@@ -83,23 +83,29 @@ if (dashboardItem.type) {
     // Preparamos outros elementos diferentes de Mapas
     type = this.convertUnderscoreToCamelCase(dashboardItem.type);
 }
-// console.log(dashboardItem[type]);
+// (dashboardItem[type]);
 
         if (dashboardItem[type]) {
         if (dashboardItem[type].hasOwnProperty('dataDimensionItems')) {
             dashboardItem[type].dataDimensionItems.forEach((item) => {
-                // console.log(item);
+                // (item);
                 const dimensionType = this.convertUnderscoreToCamelCase(item.dataDimensionItemType);
+                let dimensionTypeId;
+                if (item.dataDimensionItemType === 'REPORTING_RATE') {
+                    dimensionTypeId = item[dimensionType]['id'] + '.REPORTING_RATE';
+                } else {
+                    dimensionTypeId = item[dimensionType]['id'];
+                }
                 dataDimensions.push({
                     'type': dimensionType,
-                    'id': item[dimensionType]['id'],
+                    'id': dimensionTypeId,
                     'name': item[dimensionType]['displayName']
                 });
             });
         }
         if (dashboardItem[type].hasOwnProperty('dataElementDimensions')) {
             dashboardItem[type].dataElementDimensions.forEach((item) => {
-                // console.log(item);
+                // (item);
                 dataDimensions.push({
                     'type': 'dataElement',
                     'id': item.dataElement.id,
@@ -161,12 +167,12 @@ if (dashboardItem.type) {
         // }else {
 
         if (dashboardItem[type].hasOwnProperty('relativePeriods')) {
-            // console.log(dashboardItem[type].relativePeriods)
+
             const periodKeys = Object.keys(dashboardItem[type].relativePeriods);
             periodKeys.forEach((period) => {
-                if (dashboardItem[type].relativePeriods[period]) {
+                if (dashboardItem[type].relativePeriods[period] === true) {
                     periods.push(this.convertCamelCaseToUnderscore(period));
-                    // console.log(dashboardItem[type].relativePeriods);
+                    (periods);
                 }
             });
         }
@@ -174,9 +180,9 @@ if (dashboardItem.type) {
         if (dashboardItem[type].hasOwnProperty('periods')) {
             dashboardItem[type].periods.forEach((period) => {
                 periods.push(period.id);
-                // console.log(dashboardItem[type].periods);
+                // (dashboardItem[type].periods);
 
-                // console.log(type);
+                // (type);
             });
         }
         // }
@@ -190,12 +196,20 @@ if (dashboardItem.type) {
             });
         }
 
+            if (dashboardItem[type].userOrganisationUnit === true) {
+                orgUnits.push('USER_ORGUNIT');
+            }
+
+            if (dashboardItem[type].userOrganisationUnitChildren === true) {
+                orgUnits.push('USER_ORGUNIT_CHILDREN');
+            }
+
         if (dashboardItem[type].hasOwnProperty('organisationUnitLevels')) {
             dashboardItem[type].organisationUnitLevels.forEach((item) => {
                 organisationUnitLevels.push('LEVEL-' + item);
             });
         }
-        // console.log(organisationUnitLevels)
+        // (organisationUnitLevels)
         //   }
 
     }
@@ -217,7 +231,7 @@ if (dashboardItem.type) {
 
     // Colocar no Map component
     criarGeoJson(item: any) {
-        // console.log(item);
+        // (item);
         const orgunits = [];
         item.rows.forEach((el) => {
                 orgunits.push(el[2]);
@@ -230,10 +244,11 @@ if (dashboardItem.type) {
     getItemData(options: any): Observable<any> {
      let url = null, urlLevls = ``, urlCategories = ``, urlDimensions = ``,wichCategory = null;
 
+
      if (options.organisationUnitLevels.length > 0) {
          urlLevls = options.organisationUnitLevels.map((el) => el).join(';');
      }
-     // console.log(urlLevls)
+     // (options)
         // verificamos e definimos os filtros do item para formar a requisição
 
         // formamos as dimensoes para a url
@@ -242,37 +257,37 @@ if (dashboardItem.type) {
         // formamos as categorias para a url
 
         options.columns.forEach((column) => {
-            if (column === 'ou') {
+            if (column === 'ou' && options[column].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${column}:${urlLevls};${options[column].map((el) => el).join(';')}&`;
             }
-            if (column === 'pe') {
+            if (column === 'pe' && options[column].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el).join(';')}&`;
             }
-            if (column === 'dx') {
+            if (column === 'dx' && options[column].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el.id).join(';')}&`;
             }
         });
 
         options.rows.forEach((row) => {
-            if (row === 'ou') {
+            if (row === 'ou' && options[row].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${row}:${urlLevls};${options[row].map((el) => el).join(';')}&`;
             }
-            if ( row === 'pe') {
+            if ( row === 'pe' && options[row].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el).join(';')}&`;
             }
-            if (row === 'dx') {
+            if (row === 'dx' && options[row].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el.id).join(';')}&`;
             }
         });
 
         options.filters.forEach((fltr) => {
-            if (fltr === 'ou') {
+            if (fltr === 'ou' && options[fltr].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${fltr}:${urlLevls};${options[fltr].map((el) => el).join(';')}&`;
             }
-            if (fltr === 'pe') {
+            if (fltr === 'pe' && options[fltr].length > 0) {
                 urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}&`;
             }
-            if (fltr === 'dx') {
+            if (fltr === 'dx' && options[fltr].length > 0) {
                 urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el.id).join(';')}&`;
             }
         });
@@ -299,7 +314,7 @@ if (dashboardItem.type) {
      //    }
      //
      //    options.filters.forEach((fltr) => {
-     //        // console.log(fltr)
+     //        // (fltr)
      //        urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}${urlLevls}`;
      //        // if (fltr === 'dx' && options.dataDimensions.length > 0) {
      //        //     urlDimensions = urlDimensions + `&filter=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
@@ -314,14 +329,23 @@ if (dashboardItem.type) {
      //    });
      // } else
          if (options.type === 'map') {
-            // console.log('oi');
-            urlDimensions = urlDimensions + `dimension=ou:${urlLevls};${options.ou.map((el) => el).join(';') }&`
-            + `dimension=dx:${options.dx.map((el) => el.id).join(';')}&`
-            + `&filter=pe:${options.pe.map((el) => el).join(';')}`
+            (options);
+            if (options.ou.length > 0) {
+                urlDimensions = urlDimensions + `dimension=ou:${urlLevls};${options.ou.map((el) => el).join(';') }&`;
+            }
+             if (options.dx.length > 0) {
+                 urlDimensions = urlDimensions + `dimension=dx:${options.dx.map((el) => el.id).join(';')}&`;
+             }
+             if (options.pe.length > 0) {
+                urlDimensions = urlDimensions + `&filter=pe:${options.pe.map((el) => el).join(';')}`;
+             }
+            // urlDimensions = urlDimensions + `dimension=ou:${urlLevls};${options.ou.map((el) => el).join(';') }&`
+            // + `dimension=dx:${options.dx.map((el) => el.id).join(';')}&`
+            // + `&filter=pe:${options.pe.map((el) => el).join(';')}`
             // dimension=ou:LEVEL-3;s5DPBsdoE8b&dimension=dx:sVkTp5609pT&filter=pe:THIS_YEAR&displayProperty=NAME
         }
 
-        // console.log(options);
+        // (options);
 
         // if (options.program) {
         //     // TODO eventReport está sempre associado a um programa?
@@ -336,7 +360,7 @@ if (dashboardItem.type) {
         //         { headers: this.headers });
         // } else
 
-        // console.log(options.periods);
+        // (options.periods);
         // LAST_5_YEARS
             // Resto dos items
 

@@ -1,8 +1,7 @@
 import {AfterViewInit, Component, ElementRef, Inject, OnInit, Input} from '@angular/core';
 import jQuery from 'jquery';
 import {DashboardService} from "../Shared/dashboard.service";
-
-declare var $: any;
+import * as $ from 'jquery';
 
 @Component({
   selector: 'app-pivot-table',
@@ -12,9 +11,9 @@ declare var $: any;
 
 export class PivotTableComponent implements OnInit, AfterViewInit {
     private el: ElementRef;
-    @Input() rowsValues: any[]
-    @Input() rowDimensions: any[]
-    @Input() columnDimensions: any[]
+    @Input() rowsValues: any[];
+    @Input() rowDimensions: any[];
+    @Input() columnDimensions: any[];
 
 
     constructor(public dashboardService: DashboardService,
@@ -43,7 +42,7 @@ export class PivotTableComponent implements OnInit, AfterViewInit {
       while (targetElement.firstChild) {
           targetElement.removeChild(targetElement.firstChild);
       }
-      console.log(targetElement);
+      // console.log(targetElement);
       //here is the magic
       // targetElement.pivot([
       //         {color: "blue", shape: "circle"},
@@ -53,11 +52,19 @@ export class PivotTableComponent implements OnInit, AfterViewInit {
       //         rows: ["color"],
       //         cols: ["shape"]
       //     });
+// console.log( this.rowsValues)
+// console.log( this.rowDimensions)
+// console.log( this.columnDimensions)
+
+      const average = $.pivotUtilities.aggregatorTemplates.sum;
+      const numberFormat = $.pivotUtilities.numberFormat;
+      const intFormat = numberFormat({digitsAfterDecimal: 1});
 
       targetElement.pivot(
           this.rowsValues, {
               rows: this.rowDimensions,
-              cols: this.columnDimensions
+              cols: this.columnDimensions,
+              aggregator: average(intFormat)(['Value'])
           });
   }
   ngAfterViewInit() {

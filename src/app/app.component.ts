@@ -11,6 +11,7 @@ import {DashboardService} from './Shared/dashboard.service';
 import 'pivottable/dist/pivot.js';
 import 'pivottable/dist/pivot.min.css';
 import jQuery from 'jquery';
+import {TranslateService} from "@ngx-translate/core";
 
 declare var $: any;
 
@@ -25,88 +26,59 @@ HC_exporting( Highcharts);
   styleUrls: ['./app.component.css']
 })
 
-export class AppComponent implements OnInit {
-    private title: string;
-    public chartOptions: any = []; chartMap = [];
-    public Highcharts = Highcharts;
-    public dashboards: any;
-    public selectedDashboard: any;
-    private series = [];
-    public MapGeoJson;
-    public idDiv = 1;
-    public reportList = Array<{
-        chartOptions: any[],
-        mapOptions: any[],
-        dashboardID: number
-    }>();
-    private Mapseries = Array<{ value: number, code: string}>();
-    private  OrgUnits = [];
+export class AppComponent {
+    public isCollapsed = true;
+    showFiller = false;
+    languages = [
 
-    constructor(public dashboardService: DashboardService,
-                @Inject(ElementRef)el: ElementRef) {
-    }
+        // WAHO
+        // { code: 'en', label: 'English'},
+        // { code: 'fr', label: 'Français'}
+        // { code: 'pt', label: 'Português'},
 
-    ngOnInit() {
-        Highcharts.setOptions({
-            colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4']
+        { code: 'pt', label: 'Português'},
+        { code: 'en', label: 'English'},
+        { code: 'fr', label: 'Français'}
+    ];
+    public currentLang = 'Português';
+    public currentLocale = 'pt';
+    public color = 'primary';
+    public mode = 'indeterminate';
+    public waiting = false;
+
+    constructor(private translate: TranslateService) {
+        translate.addLangs(['en', 'fr', 'pt']);
+        // this language will be used as a fallback when a translation isn't found in the current language
+        translate.setDefaultLang('pt');
+
+        const browserLang = translate.getBrowserLang();
+        this.languages.forEach(lang => {
+            if (browserLang === lang.code) {
+                this.currentLang = lang.label;
+            }
         });
-        console.log("AppComponent: OnInit()");
-        this.getData(0);
+
+        // WAHO
+        // translate.use(browserLang.match(/en|fr|pt/) ? browserLang : 'pt');
+
+        // MISAU
+        // translate.use('pt');
+        this.changeLang(this.languages[0]);
     }
 
-getData(dashboardIndex) {
-        console.log("changed")
-    this.chartOptions = this.dashboardService.getDashboardItems(dashboardIndex);
-    this.dashboards = this.dashboardService.getDashboards();
-    this.selectedDashboard = this.dashboardService.getSelectedDashboard();
-}
-    onMapReady(map: L.Map) {
-        setTimeout(() => {
-            map.invalidateSize();
-            let div = L.DomUtil.create('div', 'infoControl');
-            let info = new L.Control();
+    changeLang(language) {
+        this.waiting = true;
 
-            info.onAdd = function (map) {
-                this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-                // this.update();
-                return this._div;
-            };
+        this.currentLang = language.label;
+        this.currentLocale = language.code;
 
-            // info.update = function (props) {
-            //     this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-            //         '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
-            //         : 'Hover over a state');
-            // };
-            console.log(div);
-            info.addTo(map);
-            console.log(map);
-        }, 10000);
+        this.translate.use(language.code);
+
+        setTimeout(function() {
+            this.waiting = false;
+            console.log(this.waiting);
+        }.bind(this), 1500);
+
+        this.isCollapsed = !this.isCollapsed;
     }
-
-    changeReportType(i: number, type: string, chartType?) {
-        if (type === 'CHART') {
-            this.chartOptions[i].chartType = chartType;
-            this.chartOptions[i].renderedType = type;
-            // if (!$(`#chart-container${i}`).hasClass('maximizar') && $(`#rep${i}`).hasClass('fullscreen-div')) {
-            //     $(`#chart-container${i}`).toggleClass('maximizar');
-                $(`#rep${i}`).focus();
-            // }
-        } else if (type === 'REPORT_TABLE') {
-            // if (!$(`#chart-container${i}`).hasClass('maximizar') && $(`#rep${i}`).hasClass('fullscreen-div')) {
-            //     $(`#chart-container${i}`).toggleClass('maximizar');
-                $(`#rep${i}`).focus();
-            // }
-            this.chartOptions[i].renderedType = type;
-            this.chartOptions[i].chartType = 'bar';
-        } else if (type === 'MAP') {
-            this.chartOptions[i].renderedType = type;
-            console.log(type)
-            // L.map('map' + i)
-            //  this.onMapReady(L.map('map' + i));
-        }
-        // this.selectedType = type;
-        $(`#rep${i}`).focus();
-    }
-
-
 }

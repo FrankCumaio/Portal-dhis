@@ -1,15 +1,4 @@
 
-.mat-toolbar.mat-primary {
-  position: sticky;
-  top: 0;
-}
-
-.navbar .nav-item>a:hover{
-  background: rgb(39, 102, 150) !important
-}
-
-.navbar .nav-item>a {
-  color: #ffffff !important;
-  font-size: 18px;
-  font-weight: 400;
+.navbar-light .navbar-nav .nav-link {
+    color: #212529;
 }
