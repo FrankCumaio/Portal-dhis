@@ -20,6 +20,12 @@ mat-button-toogle {
     margin-left: 0 !important;
     margin-right: 0 !important;
 }
+.breadcrumb {
+    background-color: #a45121;
+}
+.breadcrumb-item.active {
+    color: #fff;
+}
 .breadcrumb-dashName {
     padding-top: 15px;
     padding-right: 10px;
@@ -27,7 +33,9 @@ mat-button-toogle {
     align-items: center;
     font-size: 18px;
 }
-
+mat-accordion>.mat-expansion-panel-spacing:last-child, .mat-accordion>:last-child:not(.mat-expansion-panel) .mat-expansion-panel-spacing {
+    margin-bottom: 10px;
+}
 /* ---------------------------------------------------
     SIDEBAR STYLE
 ----------------------------------------------------- */
@@ -36,13 +44,13 @@ mat-button-toogle {
     .sidenav {
         padding-top: 15px;
         padding-left: 10px;
-        width: 300px;
+        width: 400px;
         position: fixed;
         z-index: 1;
     }
 
     .main {
-        margin-left: 300px; /* Same width as the sidebar + left position in px */
+        margin-left: 400px; /* Same width as the sidebar + left position in px */
     }
 }
 

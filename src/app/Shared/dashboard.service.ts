@@ -56,7 +56,7 @@ export class DashboardService {
         return this.selectedDashboard;
     }
     load(dashboardPos) {
-        return new Promise((resolve, reject) => {
+
             this.waiting = true;
 
             this.apiRequestsService.getDashboards().subscribe(resultado => {
@@ -74,21 +74,23 @@ export class DashboardService {
                 // Percoremos os items da dashboard para formatação dos dados
            this.selectedDashboard.push(resultado.dashboards[dashboardPos]);
             this.selectedDashboard[0].dashboardItems.forEach(async (element, intemIndex) => {
+                // Limpamos todas variaveis
+                this.chartOpt = {};
+                this.tableData  = {};
                 // this.dashboards[0].dashboardItems.forEach(async (element, intemIndex) => {
                     this.dashboards.push(this.selectedDashboard);
-                this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe((result) => {
-                this.trasformedDashboardItems.push(result);
+                this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe(async (result) => {
+                    this.trasformedDashboardItems.push(result);
                     if (element.type === 'CHART') {
                         const rowDimensions = [element.chart.series];
                         const columnDimensions = [element.chart.category];
-
-                        // console.log(element)
-                        // console.log(columnDimensions)
-                        this.buildChart(element, result, rowDimensions, columnDimensions, 'chart');
-                        this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
+                        const mapData =  await this.buildMap(element, result, rowDimensions, columnDimensions, 'chart');
+                        const chartOpt = this.buildChart(element, result, rowDimensions, columnDimensions, 'chart');
+                        const tableData = this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
                         this.dashboardItems.push({
-                                chartOpt: this.chartOpt,
-                            tableData: this.tableData,
+                            chartOpt: chartOpt,
+                            tableData: tableData,
+                            mapData: mapData,
                             type: element.type,
                             renderedType: element.type,
                             displayName: element.chart.displayName
@@ -115,136 +117,26 @@ export class DashboardService {
                                         map: mapView,
                                         type: 'map'
                                     };
-                                    this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(dashboardItem)).subscribe((result) => {
+                                    this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(dashboardItem)).subscribe(async (result) => {
                                         const rowDimensions = [];
                                         const columnDimensions = [];
 
-                                        mapView.rows.forEach( (rw) => {
+                                        mapView.rows.forEach((rw) => {
                                             rowDimensions.push(rw.id);
                                         });
-                                        mapView.columns.forEach( (cm) => {
+                                        mapView.columns.forEach((cm) => {
                                             columnDimensions.push(cm.id);
                                         });
-                                        this.mapService.criarGeoJson(mapView).subscribe((obj) => {
-
-                                            let coordenadas = [];
-                                                obj.forEach((el, index) => {
-                                                    let type = null;
-                                                    let value = null;
-                                                    let color = null;
-                                                    const rowsValues: Array<number> = [];
-                                                    // Aqui é onde criamos o nosso GeoJson
-
-                                                    if (el.ty === 2) {
-                                                        const valCoordenadas = el.co;
-                                                        type = 'MultiPolygon';
-                                                        // coordenadas  = el.co;
-
-                                                        // coordenadas = JSON.parse('[' + el.coordinates + ']');
-                                                        // if (valCoordenadas !== undefined) {
-                                                            coordenadas = JSON.parse(el.co );
-                                                        // }
-
-                                                    } else if (el.ty === 1 || el.ty === 0) {
-                                                        type = 'Point';
-                                                        coordenadas  = el.co;
-                                                            // if (valCoordenadas !== undefined) {
-                                                                coordenadas = JSON.parse(el.co );
-                                                                // console.log([coordenadas])
-                                                            //     coordenadas = coordenadas[0];
-                                                            // }
-                                                        //
-                                                    }
-
-                                                    result.rows.forEach((row) => {
-                                                        if (el.id === row[1]) {
-                                                            value = row[row.length - 1];
-                                                        }
-                                                        rowsValues.push(row[row.length - 1]);
-                                                    });
-                                                    // console.log(result.rows)
-                                                    // console.log(coordenadas);
-                                                    // console.log(geoData);
-                                                    // this.mapService.legendSet = this.Maplegends;
-                                                    if (mapView.hasOwnProperty('legendSet')) {
-                                                        mapView.legendSet.legends.forEach((legend) => {
-                                                            Maplegends1.push(legend);
-                                                        });
-                                                    } else {
-                                                        // console.log(mapView.colorScale.split(','))
-                                                        Maplegends1 = this.mapService.createLegendSet(Math.min(...rowsValues), Math.max(...rowsValues), mapView.classes, mapView.colorScale)
-                                                    }
-                                                        Maplegends1.forEach((legend) => {
-                                                            if (value >= legend.startValue && value <= legend.endValue) {
-                                                                color = legend.color;
-                                                                // console.log(color);
-                                                            }
-                                                        });
-
-
-                                                    // console.log(value);
-                                                    // let a = this.mapService.getColor(value);
-                                                    // console.log(a);
-                                                    // console.log(color);
-
-                                                    geoData.push({
-                                                        'type': 'Feature',
-                                                        'properties': {
-                                                            'orgUnit': el.na,
-                                                            'value': value,
-                                                            'color': color
-                                                        },
-                                                        'geometry': {
-                                                            'type': type,
-                                                            'coordinates': coordenadas
-                                                        }
-                                                    });
-
-                                                    // this.mapService.getColor(2);
-
-                                                    // console.log(geoData);
-                                                    // i++;
-                                                    // console.log(element)
-                                                    if (index === obj.length - 1) {
-                                                        this.MapGeoJson = L.geoJSON(geoData as any, {
-                                                            style: function (feature) {
-                                                            return {
-                                                                weight: 1,
-                                                                opacity: 1,
-                                                                color: 'black',
-                                                                dashArray: '',
-                                                                fillOpacity: 0.7,
-                                                                fillColor: feature.properties.color
-                                                            };
-                                                        },
-                                                            onEachFeature: this.mapService.onEachFeature
-                                                        });
-
-                                                        this.buildChart(dashboardItem, result, rowDimensions, columnDimensions, 'map');
-                                                        this.builTable(dashboardItem, result, rowDimensions, columnDimensions, 'map');
-                                                        this.dashboardItems.push({
-                                                            chartOpt: this.chartOpt,
-                                                            tableData: this.tableData,
-                                                            layersControlOptions: { position: 'bottomright' },
-                                                            mapOptions: {
-                                                                center: L.latLng(0, 0),
-                                                                layers: [
-                                                                    this.MapGeoJson,
-                                                                    L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
-                                                                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> ' +
-                                                                        '&copy; <a href="https://dhis2.org">DHIS2</a>',
-                                                                    })
-                                                                ],
-                                                            },
-                                                            type: element.type,
-                                                            renderedType: element.type,
-                                                            displayName: element.map.displayName
-                                                        });
-                                                        this.dashboards = resultado.dashboards;
-                                                        resolve(true);
-
-                                                    }
-                                                });
+                                        const mapData = await this.buildMap(dashboardItem, result, rowDimensions, columnDimensions, 'map');
+                                        const chartOpt = this.buildChart(dashboardItem, result, rowDimensions, columnDimensions, 'map');
+                                        const tableData = this.builTable(dashboardItem, result, rowDimensions, columnDimensions, 'map');
+                                        this.dashboardItems.push({
+                                            chartOpt: chartOpt,
+                                            tableData: tableData,
+                                            mapData: mapData,
+                                            type: element.type,
+                                            renderedType: element.type,
+                                            displayName: element.map.displayName
                                         });
 
                                     });
@@ -257,18 +149,20 @@ export class DashboardService {
                     if (element.type === 'REPORT_TABLE') {
                         // console.log(element);
 
-                        this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe((result) => {
+                        this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe(async (result) => {
                             const rowDimensions = element.reportTable.rowDimensions;
                             const columnDimensions = element.reportTable.columnDimensions;
                             console.log(rowDimensions);
                             // console.log(columnDimensions);
-                            this.buildChart(element, result, rowDimensions, columnDimensions, 'reportTable');
-                    this.builTable(element, result, rowDimensions, columnDimensions, 'reportTable');
+                            const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, 'reportTable');
+                            const chartOpt = this.buildChart(element, result, rowDimensions, columnDimensions, 'reportTable');
+                            const tableData = this.builTable(element, result, rowDimensions, columnDimensions, 'reportTable');
 
 
                             this.dashboardItems.push({
-                                chartOpt: this.chartOpt,
-                                tableData: this.tableData,
+                                chartOpt: chartOpt,
+                                tableData: tableData,
+                                mapData: mapData,
                                 type: element.type,
                                 renderedType: element.type,
                                 displayName: element.reportTable.displayName
@@ -278,10 +172,10 @@ export class DashboardService {
                     }
                 });
             // });
-
+                this.dashboards = resultado.dashboards;
         });
         // console.log(this.chartOptions);
-    });
+
     }
 
     // Funcao para construir tabelas
@@ -324,12 +218,11 @@ export class DashboardService {
         tableRows.unshift(rowNames);
         // console.log(tableRows)
 
-        this.tableData = {
+        return {
                 rowsValues: tableRows,
                 rowDimensions: tableRowDimensions,
                 columnDimensions: tableColumnDimensions
             };
-        this.waiting = false;
     }
 
    buildChart(dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType) {
@@ -340,7 +233,6 @@ if (dashboardItem[dashboardItemType].type !== undefined) {
 } else {
     chartType = 'COLUMN';
 }
-       // console.log(rowDimensions);
 
     // this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
 
@@ -351,7 +243,10 @@ if (dashboardItem[dashboardItemType].type !== undefined) {
     const dataDIArray = [];
     let series = null;
     const chartOptions = [];
+    let columnNamePosition;
     const rowDimensionValue = rowDimensions[0];
+    const columnDimensionsValue = columnDimensions[0];
+
 
     if (rowDimensionValue === 'ou') {
     series = 'organisationUnits';
@@ -363,6 +258,22 @@ if (rowDimensionValue === 'dx') {
     series = 'dataDimensionItems';
 }
 
+       // if (columnDimensionsValue === 'ou') {
+       //     columnNamePosition = 2;
+       // }
+       // if (columnDimensionsValue === 'pe') {
+       //     columnNamePosition = 1;
+       // }
+       // if (columnDimensionsValue === 'dx') {
+       //  // console.log(result)
+       //     columnNamePosition = 0;
+       // }
+       result.headers.forEach( (header, index) => {
+           if (header.name === columnDimensionsValue) {
+               columnNamePosition = index;
+           }
+       })
+
 // console.log(dashboardItem)
 // console.log(element.chart.series)
 
@@ -373,26 +284,28 @@ if (rowDimensionValue === 'dx') {
     let serieID;
     const rowsArray = [];
     // Definimos o id da dimensao pois este pode variar consoante o tipo de serie
-    if (rowDimensionValue === 'ou' || rowDimensionValue.series === 'pe') {
+    if (rowDimensionValue === 'ou' || rowDimensionValue === 'pe') {
         serieID = dataDI.id;
     } else {
         dataDItype = this.apiRequestsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
         serieID = dataDI[dataDItype].id;
     }
-    // console.log(result.rows)
-    // console.log(result.rows)
+    // console.log(result)
+    // console.log(result.rows[1])
 
     result.rows.forEach((row, index) => {
-        row.forEach((rowElment) => {
+        // console.log(result.metaData.items[filterName].name)
+        row.forEach((rowElment, index2) => {
             if (rowElment.split('.')[0] === serieID) {
-                const filterName = row[0];
-                xcategories.push(result.metaData.items[filterName].name);
+                const filterNameID = row[columnNamePosition];
+                const filterName = result.metaData.items[filterNameID].name
+                xcategories.push(filterName);
                 if (chartType === 'PIE') {
                     // console.log("E pie");
                     // console.log(result.metaData.items[filterName].name);
                     // console.log(row[row.length - 1]);
                     rowsArray.push({
-                        'name': result.metaData.items[filterName].name,
+                        'name': filterName,
                         'y': parseFloat(row[row.length - 1])
                     });
                 } else if (chartType === 'COLUMN' || chartType === 'STACKED_COLUMN' || chartType === 'LINE' || chartType === 'BAR' ) {
@@ -434,7 +347,8 @@ this.series = dataDIArray;
 // console.log([49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]);
 // console.log(this.series)
 // this.title = ;
-    this.chartOpt = {
+       this.waiting = false;
+    return  {
         series: this.series,
         chart: {
             type: chartTypeAtt
@@ -484,6 +398,141 @@ this.series = dataDIArray;
         }
     };
 
-       this.waiting = false;
+
 }
+
+    buildMap (dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType){
+      const prom =  new Promise((resolve, reject) => {
+          const targetDashboardItem = dashboardItem[dashboardItemType];
+            const geoData = [];
+            let Maplegends1 = [];
+            let mapData = {};
+            this.mapService.criarGeoJson(targetDashboardItem).subscribe((obj) => {
+
+                let coordenadas = [];
+                obj.forEach((el, index) => {
+                    let type = null;
+                    let value = null;
+                    let color = null;
+                    const rowsValues: Array<number> = [];
+                    // Aqui é onde criamos o nosso GeoJson
+
+                    if (el.ty === 2) {
+                        const valCoordenadas = el.co;
+                        type = 'MultiPolygon';
+                        // coordenadas  = el.co;
+
+                        // coordenadas = JSON.parse('[' + el.coordinates + ']');
+                        // if (valCoordenadas !== undefined) {
+                        coordenadas = JSON.parse(el.co);
+                        // }
+
+                    } else if (el.ty === 1 || el.ty === 0) {
+                        type = 'Point';
+                        coordenadas = el.co;
+                        // if (valCoordenadas !== undefined) {
+                        coordenadas = JSON.parse(el.co);
+                        // console.log([coordenadas])
+                        //     coordenadas = coordenadas[0];
+                        // }
+                        //
+                    }
+                    result.rows.forEach((row) => {
+                        if (el.id === row[1]) {
+                            value = row[row.length - 1];
+                        }
+                        rowsValues.push(row[row.length - 1]);
+                    });
+                    // console.log(result.rows)
+                    // console.log(coordenadas);
+
+                    // this.mapService.legendSet = this.Maplegends;
+                    if (targetDashboardItem.hasOwnProperty('legendSet')) {
+                        // console.log(targetDashboardItem);
+                        targetDashboardItem.legendSet.legends.forEach((legend) => {
+                            Maplegends1.push(legend);
+                        });
+                    } else {
+                        // console.log(mapView.colorScale.split(','))
+                        let legendClasses;
+                        if (targetDashboardItem.hasOwnProperty('legendSet')) {
+                            legendClasses = targetDashboardItem.classes;
+                        } else {
+                            legendClasses = 5;
+                        }
+                        let colorScale;
+                        if (!targetDashboardItem.hasOwnProperty('colorscale')) {
+                            colorScale = '#ffffd4,#fed98e,#fe9929,#d95f0e,#993404';
+                        } else {
+                            colorScale = targetDashboardItem.colorScale;
+                        }
+                        Maplegends1 = this.mapService.createLegendSet(Math.min(...rowsValues), Math.max(...rowsValues), legendClasses, colorScale);
+                    }
+                    Maplegends1.forEach((legend) => {
+                        if (value >= legend.startValue && value <= legend.endValue) {
+                            color = legend.color;
+                            // console.log(color);
+                        }
+                    });
+
+
+                    // console.log(value);
+                    // let a = this.mapService.getColor(value);
+                    // console.log(a);
+                    // console.log(color);
+
+                    geoData.push({
+                        'type': 'Feature',
+                        'properties': {
+                            'orgUnit': el.na,
+                            'value': value,
+                            'color': color
+                        },
+                        'geometry': {
+                            'type': type,
+                            'coordinates': coordenadas
+                        }
+                    });
+
+                    // this.mapService.getColor(2);
+
+                    // console.log(geoData);
+                    // i++;
+                    // console.log(element)
+                    if (index === obj.length - 1) {
+                        this.MapGeoJson = L.geoJSON(geoData as any, {
+                            style: function (feature) {
+                                return {
+                                    weight: 1,
+                                    opacity: 1,
+                                    color: 'black',
+                                    dashArray: '',
+                                    fillOpacity: 0.7,
+                                    fillColor: feature.properties.color
+                                };
+                            },
+                            onEachFeature: this.mapService.onEachFeature
+                        });
+
+                        mapData =  {
+                            mapOptions: {
+                                center: L.latLng(0, 0),
+                                scrollWheelZoom: false,
+                                layers: [
+                                    this.MapGeoJson,
+                                    L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+                                        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> ' +
+                                        '&copy; <a href="https://dhis2.org">DHIS2</a>',
+                                    })
+                                ],
+                            }
+                        };
+                        resolve(mapData);
+                    }
+                });
+            });
+        });
+      return prom;
+  }
 }
+

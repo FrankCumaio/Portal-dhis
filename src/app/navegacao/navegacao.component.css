@@ -1,4 +1,24 @@
 
-.navbar-light .navbar-nav .nav-link {
-    color: #212529;
+.navbar .navbar-nav .nav-link {
+    color: #fff;
+}
+
+.navbar .navbar-brand {
+    color: #fff;
+}
+
+.navbar a,
+a:hover,
+a:focus {
+    color: inherit;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.navbar {
+    font-family: 'GillSans-light';
+    background-color: #00792a;
+    padding: 0;
+    font-size: 18px;
+height: 50px;
 }

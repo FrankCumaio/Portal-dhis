@@ -36,7 +36,7 @@
 
 <!--&lt;!&ndash; Page Content  &ndash;&gt;-->
 <!--<div id="content">-->
-<div class="loading-indicator">
+<div class="loading-indicator" xmlns="http://www.w3.org/1999/html">
     <mat-progress-spinner [hidden]="!dashboardService.waiting" class="example-margin" [color]="color"
                           mode="indeterminate">
         <span>Carregando dados...</span>
@@ -80,15 +80,15 @@
         <!--</li>-->
         <!--</ul>-->
         <!--</mat-card>-->
-        <mat-accordion>
+        <mat-accordion >
             <mat-expansion-panel [expanded]="true">
                 <mat-expansion-panel-header>
                     <mat-panel-title>
-                        <mat-icon>account_circle</mat-icon>
-                        Filtros
+                        <i class="fas fa-filter"></i>
+                        {{ 'filters.title' | translate }}
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-
+<span>{{ 'navbar.report' | translate }}</span>
                 <ul class="list-unstyled CTAs">
                     <li>
                         <div class="input-group mb-3">
@@ -116,11 +116,39 @@
                             </select>
                         </div>
                     </li>
-                    <li>
-                        <a href="https://bootstrapious.com/p/bootstrap-sidebar" class="btn btn-primary">Filtrar</a>
-                    </li>
+                    <!--<li>-->
+                        <!--<a href="https://bootstrapious.com/p/bootstrap-sidebar" class="btn btn-primary">Filtrar</a>-->
+                    <!--</li>-->
                 </ul>
 
+            </mat-expansion-panel>
+        </mat-accordion>
+
+        <mat-accordion >
+            <mat-expansion-panel [expanded]="true">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <!--<i class="fas fa-info"></i>-->
+                        <span> About WAHO</span>
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div class="section">
+                   <strong>West Africa Health Organization Data WareHouse</strong>
+                </div>
+                <br>
+<div class="section">
+    At WAHO, the focus is on aligning data, disease and epidemiological surveillance technology, quality control and improved data standards.
+
+</div>
+                <br>
+
+                <div class="section">
+                <img align="center" src="assets/img/WAHO_Map.png" width="90%">
+                </div>
+                <br>
+                <div class="section">
+                    WAHO is actively working with countries to find the right indicators for their specific context. There are currently about 80 essential indicators in the regional data warehouse. They cover many areas such as demographics, disease burden, health service utilization, health financing, human resources and epidemic diseases. At the moment it is the epidemiological indicators that are being reported by countries, but the plan is to expand with the rest in 2016.
+                </div>
             </mat-expansion-panel>
         </mat-accordion>
 
@@ -130,14 +158,14 @@
     <div class="main">
 
         <div *ngIf="chartOptions">
-            <nav *ngIf="selectedDashboard[0] !== undifined" class="breadcrumb-dashName" aria-label="breadcrumb">
+            <nav *ngIf="selectedDashboard[0] !== undefined" class="breadcrumb-dashName" aria-label="breadcrumb">
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item active" aria-current="page">{{selectedDashboard[0].displayName}}</li>
                 </ol>
             </nav>
 
             <div class="row reports-row">
-                <div class="report-body" *ngFor="let dashItem of chartOptions; let i=index" class="col-12 col-md-6 col-sm-12 reps"
+                <div class="report-body" *ngFor="let dashItem of chartOptions; let i=index" class="col-12 col-md-12 col-sm-12 reps"
                      id="rep{{i}}" tabindex="-1">
 
                     <!--
@@ -204,8 +232,8 @@
                             <div class="map-container" style="height: 450px;" id="map{{i}}" class="map"
                                  leaflet
                                  (leafletMapReady)="onMapReady($event)"
-                                 [leafletOptions]="dashItem.mapOptions"
-                                 [leafletFitBoundsOptions]="dashItem.fitBoundsOptions">
+                                 [leafletOptions]="dashItem.mapData.mapOptions"
+                                 [leafletFitBoundsOptions]="dashItem.mapData.fitBoundsOptions">
                             </div>
                         </mat-card-content>
                         <mat-card-actions>

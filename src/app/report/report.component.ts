@@ -52,7 +52,7 @@ export class ReportComponent implements OnInit {
 
     ngOnInit() {
         Highcharts.setOptions({
-            colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4']
+            colors: ['rgb(169, 190, 59)', 'rgb(85, 140, 192)', 'rgb(85, 140, 192)', 'rgb(255, 159, 58)', 'rgb(150, 143, 143)', 'rgb(183, 64, 159);', 'rgb(255, 218, 100)', 'rgb(79, 189, 174)', 'rgb(183, 128, 64)']
         });
         console.log('AppComponent: OnInit()');
         this.getData(0);
@@ -80,9 +80,7 @@ export class ReportComponent implements OnInit {
     }
     onMapReady(map: L.Map) {
         map.fitBounds(this.dashboardService.MapGeoJson.getBounds(), {
-            padding: L.point(24, 24),
-            maxZoom: 14,
-            animate: true
+
         });
         // setTimeout(() => {
         //     map.invalidateSize();
