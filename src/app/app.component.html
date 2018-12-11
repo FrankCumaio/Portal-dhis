@@ -1,1 +1,13 @@
 <app-navegacao></app-navegacao>
+<!--<router-outlet></router-outlet>-->
+
+<div class="loading-indicator" xmlns="http://www.w3.org/1999/html">
+    <mat-progress-spinner [hidden]="!waiting" class="example-margin" [color]="color"
+                          mode="indeterminate">
+        <span>Carregando dados...</span>
+    </mat-progress-spinner>
+
+</div>
+<div [hidden]="waiting" class="portal-body" >
+    <router-outlet></router-outlet>
+</div>

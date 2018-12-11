@@ -22,6 +22,9 @@ import {MatProgressSpinnerModule} from '@angular/material';
 import { ReportComponent } from './report/report.component';
 import {MatExpansionModule} from '@angular/material/expansion';
 import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { AboutComponent } from './about/about.component';
+import { RouterModule, Routes } from '@angular/router';
+import { DownloadsComponent } from './downloads/downloads.component';
 // export function dahsboardServiceFactory(provider: DashboardService) {
 //     return () => provider.load();
 // }
@@ -29,12 +32,21 @@ export function HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http);
 }
 
+const appRoutes: Routes = [
+    { path: '', redirectTo: '/reports', pathMatch: 'full' },
+    { path: 'reports', component: ReportComponent },
+    { path: 'about',      component: AboutComponent },
+    { path: 'downloads',      component: DownloadsComponent },
+];
+
 @NgModule({
   declarations: [
     AppComponent,
     NavegacaoComponent,
     PivotTableComponent,
     ReportComponent,
+    AboutComponent,
+    DownloadsComponent,
   ],
   imports: [
       NgbModule,
@@ -51,7 +63,6 @@ export function HttpLoaderFactory(http: HttpClient) {
       MatButtonToggleModule,
       LayoutModule,
       LeafletModule.forRoot(),
-      TranslateModule.forRoot(),
       TranslateModule.forRoot({
           loader: {
               provide: TranslateLoader,
@@ -59,6 +70,10 @@ export function HttpLoaderFactory(http: HttpClient) {
               deps: [HttpClient]
           }
       }),
+      RouterModule.forRoot(
+          appRoutes,
+          { enableTracing: true } // <-- debugging purposes only
+      ),
   ],
   providers: [
       ApiRequestsService,

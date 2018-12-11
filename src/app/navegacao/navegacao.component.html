@@ -46,10 +46,14 @@
           </li> -->
 
           <li class="nav-item">
-          <a class="nav-link" routerLink="/reports" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.report' | translate }}</a>
+          <a class="nav-link" routerLink="/reports">{{ 'navbar.report' | translate }}</a>
           </li>
           <li class="nav-item">
-          <a class="nav-link" routerLink="/downloads" (click)="isCollapsed = !isCollapsed" [attr.aria-expanded]="!isCollapsed">{{ 'navbar.downloads' | translate }}</a>
+          <a class="nav-link" routerLink="/downloads">{{ 'navbar.downloads' | translate }}</a>
+          </li>
+
+          <li class="nav-item">
+          <a class="nav-link" routerLink="/about">{{ 'navbar.about' | translate }}</a>
           </li>
 
           <li class="nav-item dropdown">
@@ -66,6 +70,4 @@
   </nav>
 </header>
 
-<app-report>
-</app-report>
 
