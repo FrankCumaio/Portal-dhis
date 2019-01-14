@@ -88,7 +88,8 @@
                         {{ 'filters.title' | translate }}
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-<span>{{ 'navbar.report' | translate }}</span>
+                <!--Relatorios-->
+                <span>{{ 'navbar.report' | translate }}</span>
                 <ul class="list-unstyled CTAs">
                     <li>
                         <div class="input-group mb-3">
@@ -120,7 +121,33 @@
                         <!--<a href="https://bootstrapious.com/p/bootstrap-sidebar" class="btn btn-primary">Filtrar</a>-->
                     <!--</li>-->
                 </ul>
+                <!--Provincia-->
+                <span>{{ 'sidebar.region' | translate }}</span>
+                <ul class="list-unstyled CTAs">
+                    <li>
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="inputGroupSelect02"> <span
+                                        class="fas fa-map"></span></label>
+                            </div>
 
+                            <select class="custom-select" id="inputGroupSelect02"
+                                    (change)="changeOrgUnit($event.target.value,$event.target)" placeholder="OrgUnit">
+                                <option [value]="">Selecionar</option>
+
+                                <ng-container *ngFor="let orgUnit of orgUnits, index as i">
+                                    <ng-container>
+                                        <option [value]="orgUnit.id">{{orgUnit.displayName}}</option>
+                                    </ng-container>
+
+                                </ng-container>
+                            </select>
+                        </div>
+                    </li>
+                    <!--<li>-->
+                    <!--<a href="https://bootstrapious.com/p/bootstrap-sidebar" class="btn btn-primary">Filtrar</a>-->
+                    <!--</li>-->
+                </ul>
             </mat-expansion-panel>
         </mat-accordion>
 
@@ -137,12 +164,11 @@
                 </div>
                 <br>
 <div class="section">
-    O Sistema de Informação de Saúde de Moçambique para Monitorização e Avaliação (SIS-MA) tem como principal objectivo suportar a recolha, análise, ...
-</div>
+    Plataforma DHIS2, de código aberto flexível baseado na Web que coleta, valida, analisa e apresenta os dados estatísticos agregados, adaptado às actividades de gestão integrada de informação em saúde</div>
                 <br>
 
                 <div class="section">
-                <img align="center" src="assets/img/WAHO_Map.png" width="90%">
+                <img align="center" src="assets/img/SISMA ARqui.png" width="90%">
                 </div>
                 <br>
                 <div class="section">
@@ -173,7 +199,7 @@
             GRAFICOS
             --------------------------------
             -->
-                    <mat-card *ngIf="dashItem.renderedType === 'CHART'">
+                    <mat-card *ngIf="dashItem.renderedType === 'CHART' || dashItem.renderedType === 'EVENT_CHART'">
                         <mat-card-header>
                             <mat-card-title>{{dashItem.displayName}}</mat-card-title>
                         </mat-card-header>

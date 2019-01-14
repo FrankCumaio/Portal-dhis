@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import * as L from 'leaflet';
 import {ApiRequestsService} from './apiRequests.service';
 import {MapService} from '../Map/map.service';
-import {MatPaginator, MatTableDataSource} from '@angular/material';
-import {forEach} from "@angular/router/src/utils/collection";
+
 
 @Injectable({
   providedIn: 'root'
@@ -14,19 +13,14 @@ export class DashboardService {
     public trasformedDashboardItems: any = [];
     private dashboards: any = [];
     private selectedDashboard: any = [];
+    private selectedOrgUnit: any = [];
     private series = [];
     public MapGeoJson;
     private chartOpt = {};
     private tableData  = {};
     public Maplegends = [];
-    public reportList = Array<{
-        chartOptions: any[],
-        mapOptions: any[],
-        tableOptions: any[],
-        dashboardID: number
-    }>();
-    private Mapseries = Array<{ value: number, code: string}>();
-    private  OrgUnits = [];
+    public  orgUnits: any = [];
+    public  periods: any = [];
 
   //  Variavel do mat-loader
     public waiting = true;
@@ -36,13 +30,21 @@ export class DashboardService {
       public mapService: MapService,
   ) {}
 
-    public getDashboardItems(dashboardPos) {
+    public getDashboardItems(dashboardPos, orgUnit, period) {
         // Limpamos as variaveis dos valores antigos
-        this.dashboardItems = [];
-        this.selectedDashboard = [];
-        this.dashboards = [];
 
-        this.load(dashboardPos);
+        if (orgUnit === null ) {
+            this.selectedDashboard = [];
+        }
+        //
+        this.selectedOrgUnit = [];
+        this.dashboardItems = [];
+        this.dashboards = [];
+        this.orgUnits = [];
+        console.log(orgUnit)
+            this.load(dashboardPos, orgUnit);
+
+
         return this.dashboardItems;
     }
 
@@ -51,11 +53,23 @@ export class DashboardService {
 
         return  this.dashboards;
     }
+    public getOrgUnits() {
+        return  this.orgUnits;
+    }
+    public getPeriods() {
+return 0;
+    }
     public getSelectedDashboard() {
       // console.log(this.selectedDashboard)
         return this.selectedDashboard;
     }
-    load(dashboardPos) {
+
+    public getSelectedOrgUnit() {
+        // console.log(this.selectedDashboard)
+        return this.selectedOrgUnit;
+    }
+
+    load(dashboardPos, orgUnitId) {
 
             this.waiting = true;
 
@@ -64,29 +78,30 @@ export class DashboardService {
             // Verificamos se a lista das dashboards ja havia sido carregada previamente
 
             // Carregamos todas dashboards do sistema e atribuimos a variavel dashboards
-            // console.log(resultado.dashboards)
 
-            for (let item of resultado.dashboards) {
-                this.dashboards.push(item);
-            }
-
-
+                    resultado.dashboards.forEach((item) => {
+                    this.dashboards.push(item);
+                });
+            // }
+                if (orgUnitId === null) {
                 // Percoremos os items da dashboard para formatação dos dados
            this.selectedDashboard.push(resultado.dashboards[dashboardPos]);
+                }
             this.selectedDashboard[0].dashboardItems.forEach(async (element, intemIndex) => {
                 // Limpamos todas variaveis
                 this.chartOpt = {};
                 this.tableData  = {};
                 // this.dashboards[0].dashboardItems.forEach(async (element, intemIndex) => {
-                    this.dashboards.push(this.selectedDashboard);
-                this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe(async (result) => {
+                //     this.dashboards.push(this.selectedDashboard);
+                //    Vamos la tratar dos graficos
+                if (element.type === 'CHART') {
+              this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element), orgUnitId).subscribe(async (result) => {
                     this.trasformedDashboardItems.push(result);
-                    if (element.type === 'CHART') {
                         const rowDimensions = [element.chart.series];
                         const columnDimensions = [element.chart.category];
                         const mapData =  await this.buildMap(element, result, rowDimensions, columnDimensions, 'chart');
-                        const chartOpt = this.buildChart(element, result, rowDimensions, columnDimensions, 'chart');
-                        const tableData = this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
+                        const chartOpt =  this.buildChart(element, result, rowDimensions, columnDimensions, 'chart');
+                        const tableData =  this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
                         this.dashboardItems.push({
                             chartOpt: chartOpt,
                             tableData: tableData,
@@ -96,92 +111,116 @@ export class DashboardService {
                             displayName: element.chart.displayName
 
                         });
-                        {
-
-                        }
-                    }
                 });
+                }
 
-                    // Vamos la tratar os Mapas
-                    if (element.type === 'MAP') {
-                        this.mapService.getMapviews(element.map.id).subscribe((res) => {
-                            // console.log(res);
-                            const geoData = [];
-
-                            res.mapViews.forEach( (mapView) => {
-                                // console.log(mapView)
-                                if (mapView.layer !== 'boundary') {
-                                    let Maplegends1 = [];
-                                    // console.log(this.Maplegends)
-                                    const dashboardItem = {
-                                        map: mapView,
-                                        type: 'map'
-                                    };
-                                    this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(dashboardItem)).subscribe(async (result) => {
-                                        const rowDimensions = [];
-                                        const columnDimensions = [];
-
-                                        mapView.rows.forEach((rw) => {
-                                            rowDimensions.push(rw.id);
-                                        });
-                                        mapView.columns.forEach((cm) => {
-                                            columnDimensions.push(cm.id);
-                                        });
-                                        const mapData = await this.buildMap(dashboardItem, result, rowDimensions, columnDimensions, 'map');
-                                        const chartOpt = this.buildChart(dashboardItem, result, rowDimensions, columnDimensions, 'map');
-                                        const tableData = this.builTable(dashboardItem, result, rowDimensions, columnDimensions, 'map');
-                                        this.dashboardItems.push({
-                                            chartOpt: chartOpt,
-                                            tableData: tableData,
-                                            mapData: mapData,
-                                            type: element.type,
-                                            renderedType: element.type,
-                                            displayName: element.map.displayName
-                                        });
-
-                                    });
-                                    // geoData = [];
-                                }
-                            });
-                        });
-                    }
                 //    Vamos la tratar das tabelas
-                    if (element.type === 'REPORT_TABLE') {
-                        // console.log(element);
+                if (element.type === 'REPORT_TABLE') {
+                    console.log(element);
+                    await this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element), orgUnitId).subscribe(async (result) => {
+                        const rowDimensions = element.reportTable.rowDimensions;
+                        const columnDimensions = element.reportTable.columnDimensions;
+                        // console.log(rowDimensions);
+                        // console.log(columnDimensions);
+                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, 'reportTable');
+                        const chartOpt =  this.buildChart(element, result, rowDimensions, columnDimensions, 'reportTable');
+                        const tableData = await this.builTable(element, result, rowDimensions, columnDimensions, 'reportTable');
 
-                        this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element)).subscribe(async (result) => {
-                            const rowDimensions = element.reportTable.rowDimensions;
-                            const columnDimensions = element.reportTable.columnDimensions;
-                            console.log(rowDimensions);
-                            // console.log(columnDimensions);
-                            const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, 'reportTable');
-                            const chartOpt = this.buildChart(element, result, rowDimensions, columnDimensions, 'reportTable');
-                            const tableData = this.builTable(element, result, rowDimensions, columnDimensions, 'reportTable');
 
+                        this.dashboardItems.push({
+                            chartOpt: chartOpt,
+                            tableData: tableData,
+                            mapData: mapData,
+                            type: element.type,
+                            renderedType: element.type,
+                            displayName: element.reportTable.displayName
 
-                            this.dashboardItems.push({
-                                chartOpt: chartOpt,
-                                tableData: tableData,
-                                mapData: mapData,
-                                type: element.type,
-                                renderedType: element.type,
-                                displayName: element.reportTable.displayName
-
-                            });
                         });
-                    }
-                });
+                    });
+                }
+                // Vamos la tratar os Mapas
+                if (element.type === 'MAP')  {
+                    await this.mapService.getMapviews(element.map.id).subscribe((res) => {
+                        // console.log(res);
+                        const geoData = [];
+
+                        res.mapViews.forEach( (mapView) => {
+                            // console.log(mapView)
+                            if (mapView.layer !== 'boundary') {
+                                const Maplegends1 = [];
+                                // console.log(this.Maplegends)
+                                const dashboardItem = {
+                                    map: mapView,
+                                    type: 'map'
+                                };
+                                this.apiRequestsService.getItemData(this.apiRequestsService.
+                                prepareForRequest(dashboardItem), orgUnitId).subscribe(async (result) => {
+                                    const rowDimensions = [];
+                                    const columnDimensions = [];
+
+                                    mapView.rows.forEach((rw) => {
+                                        rowDimensions.push(rw.id);
+                                    });
+                                    mapView.columns.forEach((cm) => {
+                                        columnDimensions.push(cm.id);
+                                    });
+                                    const mapData = await this.buildMap(dashboardItem, result, rowDimensions, columnDimensions, 'map');
+                                    const chartOpt =  this.buildChart(dashboardItem, result, columnDimensions , rowDimensions,'map');
+                                    const tableData =  this.builTable(dashboardItem, result, rowDimensions, columnDimensions, 'map');
+                                    this.dashboardItems.push({
+                                        chartOpt: chartOpt,
+                                        tableData: tableData,
+                                        mapData: mapData,
+                                        type: element.type,
+                                        renderedType: element.type,
+                                        displayName: element.map.displayName
+                                    });
+
+                                });
+                                // geoData = [];
+                            }
+                        });
+                    });
+                }
+                //    Vamos la tratar os Event charts
+                if (element.type === 'EVENT_CHART') {
+                    this.apiRequestsService.getItemData(this.apiRequestsService.
+                    prepareForRequest(element), orgUnitId).subscribe(async (result) => {
+                        this.trasformedDashboardItems.push(result);
+                        const rowDimensions = element.eventChart.rowDimensions;
+                        const columnDimensions = element.eventChart.columnDimensions;
+                        // const mapData =  await this.buildMap(element, result, rowDimensions, columnDimensions, 'eventChart');
+                        const chartOpt =  this.buildChart(element, result, rowDimensions, columnDimensions, 'eventChart');
+                        // const tableData =  await this.builTable(element, result, rowDimensions, columnDimensions, 'eventChart');
+                        this.dashboardItems.push({
+                            chartOpt: chartOpt,
+                            tableData: [],
+                            mapData: [],
+                            type: element.type,
+                            renderedType: element.type,
+                            displayName: element.eventChart.displayName
+
+                        });
+                    });
+                }
+            });
+
             // });
-                this.dashboards = resultado.dashboards;
+            //     this.dashboards = resultado.dashboards;
         });
+
+            this.apiRequestsService.getOrgUnits().subscribe(resultado => {
+                resultado.organisationUnits.forEach((item) => {
+                    this.orgUnits .push(item);
+                });
+            });
         // console.log(this.chartOptions);
 
     }
 
+
     // Funcao para construir tabelas
     builTable(dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType) {
-      // console.log(rowDimensions)
-      // console.log(columnDimensions)
         const rowNames = [];
         let tableRows = [];
         const tableRowDimensions = [];
@@ -227,19 +266,15 @@ export class DashboardService {
 
    buildChart(dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType) {
     // Criamos tabela para o grafico
-       let chartType;
+       let chartType = 'COLUMN';
 if (dashboardItem[dashboardItemType].type !== undefined) {
     chartType = dashboardItem[dashboardItemType].type;
-} else {
-    chartType = 'COLUMN';
 }
-
     // this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
 
 
     let dataDItype = null;
     const xcategories = [];
-    const ddiRows = [];
     const dataDIArray = [];
     let series = null;
     const chartOptions = [];
@@ -247,56 +282,61 @@ if (dashboardItem[dashboardItemType].type !== undefined) {
     const rowDimensionValue = rowDimensions[0];
     const columnDimensionsValue = columnDimensions[0];
 
-
     if (rowDimensionValue === 'ou') {
     series = 'organisationUnits';
-}
-if (rowDimensionValue === 'pe') {
+} else if (rowDimensionValue === 'pe') {
     series = 'periods';
-}
-if (rowDimensionValue === 'dx') {
+} else if (rowDimensionValue === 'dx') {
     series = 'dataDimensionItems';
-}
-
-       // if (columnDimensionsValue === 'ou') {
-       //     columnNamePosition = 2;
-       // }
-       // if (columnDimensionsValue === 'pe') {
-       //     columnNamePosition = 1;
-       // }
-       // if (columnDimensionsValue === 'dx') {
-       //  // console.log(result)
-       //     columnNamePosition = 0;
-       // }
+} else {
+        series = 'dataElementDimensions';
+    }
+       // Verificamos a posicao do elemento na coluna
        result.headers.forEach( (header, index) => {
-           if (header.name === columnDimensionsValue) {
-               columnNamePosition = index;
-           }
-       })
 
-// console.log(dashboardItem)
-// console.log(element.chart.series)
-
-// console.log( dashboardItem[dashboardItemType]);
-// console.log( element.chart[series]);
+           // if (columnDimensionsValue === 'pe' || columnDimensionsValue === 'dx' || columnDimensionsValue === 'pe') {
+               if (header.name === columnDimensionsValue) {
+                   columnNamePosition = index;
+               }
+           // }
+           // else {
+           //     if (header.name === columnDimensionsValue) {
+           //         columnNamePosition = columnDimensionsValue;
+           //     }
+           // }
+       });
 // Carregamos os dados PAra cada Dimensao, Unidade organizacional ou periodo que se encontra nas series
        dashboardItem[dashboardItemType][series].forEach((dataDI) => {
+           // console.log (dataDI);x
     let serieID;
     const rowsArray = [];
     // Definimos o id da dimensao pois este pode variar consoante o tipo de serie
+    //        console.log(rowDimensionValue)
     if (rowDimensionValue === 'ou' || rowDimensionValue === 'pe') {
         serieID = dataDI.id;
-    } else {
+    }  if (rowDimensionValue === 'dx') {
         dataDItype = this.apiRequestsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
         serieID = dataDI[dataDItype].id;
+    } if (rowDimensionValue !== 'dx' && rowDimensionValue !== 'ou' && rowDimensionValue !== 'pe') {
+        console.log('e diferente');
+        console.log(dataDI);
+        if (dataDI.hasOwnProperty('dataElement')) {
+            dataDItype = 'DATA_ELEMENT';
+            serieID = dataDI.dataElement.id;
+        }
+
     }
-    // console.log(result)
-    // console.log(result.rows[1])
 
     result.rows.forEach((row, index) => {
-        // console.log(result.metaData.items[filterName].name)
+        // console.log()
         row.forEach((rowElment, index2) => {
-            if (rowElment.split('.')[0] === serieID) {
+            let posicaoNaRow = 0;
+            if (dashboardItemType === 'eventChart') {
+                posicaoNaRow = 1;
+            }
+            if (rowElment.split('.')[posicaoNaRow] === serieID) {
+                // console.log(rowElment.split('.')[0] )
+                // console.log(serieID)
                 const filterNameID = row[columnNamePosition];
                 const filterName = result.metaData.items[filterNameID].name
                 xcategories.push(filterName);
@@ -316,13 +356,19 @@ if (rowDimensionValue === 'dx') {
             }
         });
     });
-
+// console.log(rowDimensionValue)
     if (chartType === 'COLUMN' || chartType === 'STACKED_COLUMN' || chartType === 'LINE' || chartType === 'PIE' || chartType === 'BAR' ) {
         if (rowDimensionValue === 'ou' || rowDimensionValue === 'pe') {
             dataDIArray.push({'name': dataDI.displayName, 'data': rowsArray});
+            // console.log(dataDIArray);
 
-        } else {
+        } if (rowDimensionValue === 'dx') {
             dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
+        }
+        if (rowDimensionValue !== 'dx' && rowDimensionValue !== 'pe' && rowDimensionValue !== 'ou') {
+            dataDIArray.push({'name': 'teste', 'data': rowsArray});
+            // console.log(dataDIArray);
+
         }
         // } else if (element.chart.type === 'PIE') {
         //     dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
@@ -330,6 +376,7 @@ if (rowDimensionValue === 'dx') {
     }
 });
 // Atribuimos os valores trabalhados de acordo com o tipo de grafico
+//        console.log(dataDIArray);
 this.series = dataDIArray;
 
 //
@@ -347,9 +394,9 @@ this.series = dataDIArray;
 // console.log([49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]);
 // console.log(this.series)
 // this.title = ;
-       this.waiting = false;
-    return  {
-        series: this.series,
+
+    return this.waiting = false, {
+        series: dataDIArray,
         chart: {
             type: chartTypeAtt
             // type: 'pie'
@@ -396,12 +443,12 @@ this.series = dataDIArray;
             }
 
         }
-    };
 
+    };
 
 }
 
-    buildMap (dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType){
+    buildMap (dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType) {
       const prom =  new Promise((resolve, reject) => {
           const targetDashboardItem = dashboardItem[dashboardItemType];
             const geoData = [];
@@ -438,6 +485,7 @@ this.series = dataDIArray;
                         //
                     }
                     result.rows.forEach((row) => {
+
                         if (el.id === row[1]) {
                             value = row[row.length - 1];
                         }

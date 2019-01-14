@@ -4,8 +4,12 @@
         "report": "Relatórios",
         "downloads": "Downloads",
         "about": "Sobre nós",
-        "title": "SISMA - Portal público de dados"
+        "title": "Portal do sistema de informação de saude de Moçambique"
 
+    },
+    "sidebar": {
+        "period": "Periodo",
+        "region": "Regiao"
     },
     "filters": {
         "title": "Filtros",

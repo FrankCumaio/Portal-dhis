@@ -32,9 +32,9 @@ export class ApiRequestsService {
         // (this.connectionService.getApiURI);
         // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
         return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
-            + `idName,translations,dashboardItems[:idName,type,id,`
+             + `idName,translations,dashboardItems[:idName,type,id,`
             + `reportTable[:idName,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],organisationUnits[:idName],*],`
-            + `eventChart[:all],`
+            + `eventChart[:all,organisationUnits[:idName],dataElementDimensions[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],*],`
             +  `eventReport[:all],`
             + `chart[:idName,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],organisationUnits[:idName],*]`
             + `map[:idName, translations,latitude,longitude,zoom]`,
@@ -42,12 +42,20 @@ export class ApiRequestsService {
 
     }
 
+    getOrgUnits(): Observable <any> {
+        // ('olaaaa');
+        // (this.connectionService.getApiURI);
+        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
+        return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?level=2`,
+            { headers: this.headers });
+    }
+
 
     getDataDimensionName(id, type)  {
         // (type);
         this.http.get(`${this.connectionService.apiURI}/api/` + type + `s/` + id + `.json?fields=:`
             + `idName`,
-            { headers: this.headers }).subscribe((result:any) => {
+            { headers: this.headers }).subscribe((result: any) => {
             return result.displayName;
 
         });
@@ -68,8 +76,8 @@ export class ApiRequestsService {
 
     prepareForRequest(dashboardItem) {
 //        Esta funcao transforma os dados brutos para que sejam eviadas requisicoes  ao analytics
-(dashboardItem);
         const dataDimensions = [];
+        let dataDimensionsFilter = [];
         const periods = [];
         const orgUnits = [];
         const organisationUnitLevels = [];
@@ -105,12 +113,15 @@ if (dashboardItem.type) {
         }
         if (dashboardItem[type].hasOwnProperty('dataElementDimensions')) {
             dashboardItem[type].dataElementDimensions.forEach((item) => {
-                // (item);
+                if (item.hasOwnProperty('filter')) {
+                    dataDimensionsFilter = item.filter;
+                }
                 dataDimensions.push({
                     'type': 'dataElement',
                     'id': item.dataElement.id,
                     'name': item.dataElement.displayName
                 });
+
             });
         }
 
@@ -155,7 +166,6 @@ if (dashboardItem.type) {
             if (dashboardItem[type].hasOwnProperty('filterDimensions')) {
                 filters = dashboardItem[type].filterDimensions;
             }
-
             // if (dashboardItem[type].hasOwnProperty('filters')) {
             //     filters = dashboardItem[type].filters;
             // }
@@ -216,6 +226,7 @@ if (dashboardItem.type) {
 
         return {
             dx: dataDimensions,
+            dxFilter: dataDimensionsFilter,
             pe: periods,
             ou: orgUnits,
             organisationUnitLevels: organisationUnitLevels,
@@ -241,97 +252,86 @@ if (dashboardItem.type) {
             {headers: this.headers});
     }
 
-    getItemData(options: any): Observable<any> {
+    getItemData(options: any, orgUnitID): Observable<any> {
+        // console.log (options.type)
      let url = null, urlLevls = ``, urlCategories = ``, urlDimensions = ``,wichCategory = null;
 
 
      if (options.organisationUnitLevels.length > 0) {
-         urlLevls = options.organisationUnitLevels.map((el) => el).join(';');
+         urlLevls = options.organisationUnitLevels.map((el) => el).join(';') + ';';
      }
      // (options)
         // verificamos e definimos os filtros do item para formar a requisição
 
         // formamos as dimensoes para a url
 
-
+// console.log(options);
         // formamos as categorias para a url
 
         options.columns.forEach((column) => {
             if (column === 'ou' && options[column].length > 0) {
-                urlDimensions = urlDimensions + `dimension=${column}:${urlLevls};${options[column].map((el) => el).join(';')}&`;
-            }
+                if (orgUnitID === null) {
+                    urlDimensions = urlDimensions + `dimension=${column}:${urlLevls}${options[column].map((el) => el).join(';')}&`;
+                } else {
+                    console.log('pode fazer sentido');
+                    urlDimensions = urlDimensions + `dimension=${column}:${urlLevls}${orgUnitID}&`;
+                }
+            } else
             if (column === 'pe' && options[column].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el).join(';')}&`;
-            }
+            } else
             if (column === 'dx' && options[column].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el.id).join(';')}&`;
+            } else {
+                // verificamos se o evento tem filtros
+                if (options.dxFilter.length > 0) {
+                    urlDimensions = urlDimensions + `dimension=${column}:${options.dxFilter}&`;
+                    console.log(urlDimensions);
+                } else {
+                    urlDimensions = urlDimensions + `dimension=${column}&`;
+                }
             }
         });
 
         options.rows.forEach((row) => {
             if (row === 'ou' && options[row].length > 0) {
-                urlDimensions = urlDimensions + `dimension=${row}:${urlLevls};${options[row].map((el) => el).join(';')}&`;
-            }
-            if ( row === 'pe' && options[row].length > 0) {
+                if (orgUnitID === null) {
+                    urlDimensions = urlDimensions + `dimension=${row}:${urlLevls}${options[row].map((el) => el).join(';')}&`;
+                } else {
+                    urlDimensions = urlDimensions + `dimension=${row}:${urlLevls}${orgUnitID}&`;
+                }
+            } else if ( row === 'pe' && options[row].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el).join(';')}&`;
-            }
-            if (row === 'dx' && options[row].length > 0) {
+            } else if (row === 'dx' && options[row].length > 0) {
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el.id).join(';')}&`;
+            } else {
+                urlDimensions = urlDimensions + `dimension=${row}&`;
             }
         });
 
         options.filters.forEach((fltr) => {
             if (fltr === 'ou' && options[fltr].length > 0) {
-                urlDimensions = urlDimensions + `dimension=${fltr}:${urlLevls};${options[fltr].map((el) => el).join(';')}&`;
-            }
-            if (fltr === 'pe' && options[fltr].length > 0) {
+                if (orgUnitID === null) {
+                    urlDimensions = urlDimensions + `filter=${fltr}:${urlLevls}${options[fltr].map((el) => el).join(';')}&`;
+                } else {
+                    urlDimensions = urlDimensions + `filter=${fltr}:${urlLevls}${orgUnitID}&`;
+                }
+                } else if (fltr === 'pe' && options[fltr].length > 0) {
                 urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}&`;
-            }
-            if (fltr === 'dx' && options[fltr].length > 0) {
+            } else if (fltr === 'dx' && options[fltr].length > 0) {
                 urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el.id).join(';')}&`;
+            } else {
+                urlDimensions = urlDimensions + `&filter=${fltr}&`;
             }
         });
 
-     // if (options.type === 'reportTable') {
-     //     options.columns.forEach((column) => {
-     //     })
-     // } else if (options.type === 'chart') {
-     //    //
-     //    if (options.series === 'ou' && options.orgUnits.length > 0) {
-     //        urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';')}${urlLevls}&`;
-     //    }  if (options.series === 'pe' && options.periods.length > 0) {
-     //        urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
-     //    }  if (options.series === 'dx' && options.dataDimensions.length > 0) {
-     //        urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}${urlLevls}&`;
-     //    }
-     //
-     //    if (options.category === 'ou' && options.orgUnits.length > 0) {
-     //        urlDimensions = urlDimensions + `dimension=ou:${options.orgUnits.map((el) => el).join(';') }${urlLevls}&`;
-     //    }  if (options.category === 'pe' && options.periods.length > 0) {
-     //        urlDimensions = urlDimensions + `dimension=pe:${options.periods.map((el) => el).join(';')}&`;
-     //    }  if (options.category === 'dx' && options.dataDimensions.length > 0 ) {
-     //        urlDimensions = urlDimensions + `dimension=dx:${options.dataDimensions.map((el) => el.id).join(';')}&`;
-     //    }
-     //
-     //    options.filters.forEach((fltr) => {
-     //        // (fltr)
-     //        urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}${urlLevls}`;
-     //        // if (fltr === 'dx' && options.dataDimensions.length > 0) {
-     //        //     urlDimensions = urlDimensions + `&filter=dx:${options.dataDimensions.map((el) => el.id).join(';')}`;
-     //        // }
-     //        //
-     //        // if (fltr === 'pe' && options.periods.length > 0) {
-     //        //     urlDimensions = urlDimensions + `&filter=pe:${options.periods.map((el) => el).join(';')}`;
-     //        // }
-     //        // if (fltr === 'ou' && options.orgUnits.length > 0) {
-     //        //     urlDimensions = urlDimensions + `&filter=ou:${options.orgUnits.map((el) => el).join(';')}${urlLevls}`;
-     //        // }
-     //    });
-     // } else
          if (options.type === 'map') {
-            (options);
             if (options.ou.length > 0) {
-                urlDimensions = urlDimensions + `dimension=ou:${urlLevls};${options.ou.map((el) => el).join(';') }&`;
+                if (orgUnitID === null) {
+                    urlDimensions = urlDimensions + `dimension=ou:${urlLevls};${options.ou.map((el) => el).join(';') }&`;
+                } else {
+                urlDimensions = urlDimensions + `dimension=ou:${urlLevls};${orgUnitID}&`;
+                }
             }
              if (options.dx.length > 0) {
                  urlDimensions = urlDimensions + `dimension=dx:${options.dx.map((el) => el.id).join(';')}&`;
@@ -339,10 +339,6 @@ if (dashboardItem.type) {
              if (options.pe.length > 0) {
                 urlDimensions = urlDimensions + `&filter=pe:${options.pe.map((el) => el).join(';')}`;
              }
-            // urlDimensions = urlDimensions + `dimension=ou:${urlLevls};${options.ou.map((el) => el).join(';') }&`
-            // + `dimension=dx:${options.dx.map((el) => el.id).join(';')}&`
-            // + `&filter=pe:${options.pe.map((el) => el).join(';')}`
-            // dimension=ou:LEVEL-3;s5DPBsdoE8b&dimension=dx:sVkTp5609pT&filter=pe:THIS_YEAR&displayProperty=NAME
         }
 
         // (options);
@@ -364,9 +360,19 @@ if (dashboardItem.type) {
         // LAST_5_YEARS
             // Resto dos items
 
-            return this.http.get(`${this.connectionService.apiURI}/api/analytics.json?`
+        if (options.type === 'map' || options.type === 'chart' || options.type === 'reportTable') {
+            console.log(options)
+             return this.http.get(`${this.connectionService.apiURI}/api/analytics.json?`
                 + urlDimensions,
                 {headers: this.headers});
+        } else if (options.type === 'eventChart' || options.type === 'eventReport') {
+             // console.log(options)
+                return this.http.get(`${this.connectionService.apiURI}/api/analytics/events/aggregate/`
+                    + `${options.program}.json?`
+                    + urlDimensions
+                    + `stage=${options.programStage}`
+                    + `&displayProperty=NAME&outputType=EVENT`, { headers: this.headers });
+        }
     }
 
     convertCamelCaseToUnderscore(string) {
