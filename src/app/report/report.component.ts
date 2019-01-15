@@ -60,7 +60,6 @@ export class ReportComponent implements OnInit {
         console.log('tentou traduzir');
         return dashboard.displayName;
     }
-
     getData(dashboardIndex) {
         this.waiting = true;
         this.chartOptions = this.dashboardService.getDashboardItems(dashboardIndex, null, null);

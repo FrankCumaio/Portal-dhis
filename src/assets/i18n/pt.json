@@ -9,7 +9,8 @@
     },
     "sidebar": {
         "period": "Periodo",
-        "region": "Regiao"
+        "region": "Região",
+        "regionAll": "Todas Regiões"
     },
     "filters": {
         "title": "Filtros",

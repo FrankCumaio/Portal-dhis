@@ -32,7 +32,7 @@ export class MapService {
         });
     }
 
-    criarGeoJson(item: any): Observable<any> {
+    criarGeoJson(item: any, orgUnitId): Observable<any> {
         // console.log(item);
         let orgunits = ``;
         let levels = ``;
@@ -40,10 +40,14 @@ export class MapService {
             levels = levels + `LEVEL-` + el + `;`;
             }
         );
-        item.organisationUnits.forEach((el) => {
-                orgunits = orgunits  + el.id + `;`;
-            }
-        );
+        if (orgUnitId === null) {
+            item.organisationUnits.forEach((el) => {
+                    orgunits = orgunits + el.id + `;`;
+                }
+            );
+        } else {
+            orgunits = orgUnitId;
+        }
 
 
         // return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?`

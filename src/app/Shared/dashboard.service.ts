@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import * as L from 'leaflet';
 import {ApiRequestsService} from './apiRequests.service';
 import {MapService} from '../Map/map.service';
 
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class DashboardService {
     private title: string;
-    public dashboardItems: any = []; chartMap = [];
+    public dashboardItems: any = [];
+    chartMap = [];
     public trasformedDashboardItems: any = [];
     private dashboards: any = [];
     private selectedDashboard: any = [];
@@ -17,23 +18,24 @@ export class DashboardService {
     private series = [];
     public MapGeoJson;
     private chartOpt = {};
-    private tableData  = {};
+    private tableData = {};
     public Maplegends = [];
-    public  orgUnits: any = [];
-    public  periods: any = [];
+    public orgUnits: any = [];
+    public periods: any = [];
 
-  //  Variavel do mat-loader
+    //  Variavel do mat-loader
     public waiting = true;
 
-  constructor(
-      public apiRequestsService: ApiRequestsService,
-      public mapService: MapService,
-  ) {}
+    constructor(
+        public apiRequestsService: ApiRequestsService,
+        public mapService: MapService,
+    ) {
+    }
 
     public getDashboardItems(dashboardPos, orgUnit, period) {
         // Limpamos as variaveis dos valores antigos
 
-        if (orgUnit === null ) {
+        if (orgUnit === null) {
             this.selectedDashboard = [];
         }
         //
@@ -42,7 +44,7 @@ export class DashboardService {
         this.dashboards = [];
         this.orgUnits = [];
         console.log(orgUnit)
-            this.load(dashboardPos, orgUnit);
+        this.load(dashboardPos, orgUnit);
 
 
         return this.dashboardItems;
@@ -51,16 +53,19 @@ export class DashboardService {
     public getDashboards() {
         // console.log(this.dashboards)
 
-        return  this.dashboards;
+        return this.dashboards;
     }
+
     public getOrgUnits() {
-        return  this.orgUnits;
+        return this.orgUnits;
     }
+
     public getPeriods() {
-return 0;
+        return 0;
     }
+
     public getSelectedDashboard() {
-      // console.log(this.selectedDashboard)
+        // console.log(this.selectedDashboard)
         return this.selectedDashboard;
     }
 
@@ -71,37 +76,37 @@ return 0;
 
     load(dashboardPos, orgUnitId) {
 
-            this.waiting = true;
+        this.waiting = true;
 
-            this.apiRequestsService.getDashboards().subscribe(resultado => {
+        this.apiRequestsService.getDashboards().subscribe(resultado => {
 
             // Verificamos se a lista das dashboards ja havia sido carregada previamente
 
             // Carregamos todas dashboards do sistema e atribuimos a variavel dashboards
 
-                    resultado.dashboards.forEach((item) => {
-                    this.dashboards.push(item);
-                });
+            resultado.dashboards.forEach((item) => {
+                this.dashboards.push(item);
+            });
             // }
-                if (orgUnitId === null) {
+            if (orgUnitId === null) {
                 // Percoremos os items da dashboard para formatação dos dados
-           this.selectedDashboard.push(resultado.dashboards[dashboardPos]);
-                }
+                this.selectedDashboard.push(resultado.dashboards[dashboardPos]);
+            }
             this.selectedDashboard[0].dashboardItems.forEach(async (element, intemIndex) => {
                 // Limpamos todas variaveis
                 this.chartOpt = {};
-                this.tableData  = {};
+                this.tableData = {};
                 // this.dashboards[0].dashboardItems.forEach(async (element, intemIndex) => {
                 //     this.dashboards.push(this.selectedDashboard);
                 //    Vamos la tratar dos graficos
                 if (element.type === 'CHART') {
-              this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element), orgUnitId).subscribe(async (result) => {
-                    this.trasformedDashboardItems.push(result);
+                    this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element), orgUnitId).subscribe(async (result) => {
+                        this.trasformedDashboardItems.push(result);
                         const rowDimensions = [element.chart.series];
                         const columnDimensions = [element.chart.category];
-                        const mapData =  await this.buildMap(element, result, rowDimensions, columnDimensions, 'chart');
-                        const chartOpt =  this.buildChart(element, result, rowDimensions, columnDimensions, 'chart');
-                        const tableData =  this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
+                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, 'chart');
+                        const chartOpt = this.buildChart(element, result, rowDimensions, columnDimensions, orgUnitId, 'chart');
+                        const tableData = this.builTable(element, result, rowDimensions, columnDimensions, orgUnitId, 'chart');
                         this.dashboardItems.push({
                             chartOpt: chartOpt,
                             tableData: tableData,
@@ -111,7 +116,7 @@ return 0;
                             displayName: element.chart.displayName
 
                         });
-                });
+                    });
                 }
 
                 //    Vamos la tratar das tabelas
@@ -122,9 +127,9 @@ return 0;
                         const columnDimensions = element.reportTable.columnDimensions;
                         // console.log(rowDimensions);
                         // console.log(columnDimensions);
-                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, 'reportTable');
-                        const chartOpt =  this.buildChart(element, result, rowDimensions, columnDimensions, 'reportTable');
-                        const tableData = await this.builTable(element, result, rowDimensions, columnDimensions, 'reportTable');
+                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, 'reportTable');
+                        const chartOpt = this.buildChart(element, result, rowDimensions, columnDimensions, orgUnitId, 'reportTable');
+                        const tableData = await this.builTable(element, result, rowDimensions, columnDimensions, orgUnitId, 'reportTable');
 
 
                         this.dashboardItems.push({
@@ -139,12 +144,12 @@ return 0;
                     });
                 }
                 // Vamos la tratar os Mapas
-                if (element.type === 'MAP')  {
+                if (element.type === 'MAP') {
                     await this.mapService.getMapviews(element.map.id).subscribe((res) => {
                         // console.log(res);
                         const geoData = [];
 
-                        res.mapViews.forEach( (mapView) => {
+                        res.mapViews.forEach((mapView) => {
                             // console.log(mapView)
                             if (mapView.layer !== 'boundary') {
                                 const Maplegends1 = [];
@@ -153,8 +158,7 @@ return 0;
                                     map: mapView,
                                     type: 'map'
                                 };
-                                this.apiRequestsService.getItemData(this.apiRequestsService.
-                                prepareForRequest(dashboardItem), orgUnitId).subscribe(async (result) => {
+                                this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(dashboardItem), orgUnitId).subscribe(async (result) => {
                                     const rowDimensions = [];
                                     const columnDimensions = [];
 
@@ -164,9 +168,9 @@ return 0;
                                     mapView.columns.forEach((cm) => {
                                         columnDimensions.push(cm.id);
                                     });
-                                    const mapData = await this.buildMap(dashboardItem, result, rowDimensions, columnDimensions, 'map');
-                                    const chartOpt =  this.buildChart(dashboardItem, result, columnDimensions , rowDimensions,'map');
-                                    const tableData =  this.builTable(dashboardItem, result, rowDimensions, columnDimensions, 'map');
+                                    const mapData = await this.buildMap(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, 'map');
+                                    const chartOpt = this.buildChart(dashboardItem, result, columnDimensions, rowDimensions, orgUnitId, 'map');
+                                    const tableData = this.builTable(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, 'map');
                                     this.dashboardItems.push({
                                         chartOpt: chartOpt,
                                         tableData: tableData,
@@ -184,14 +188,13 @@ return 0;
                 }
                 //    Vamos la tratar os Event charts
                 if (element.type === 'EVENT_CHART') {
-                    this.apiRequestsService.getItemData(this.apiRequestsService.
-                    prepareForRequest(element), orgUnitId).subscribe(async (result) => {
+                    this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element), orgUnitId).subscribe(async (result) => {
                         this.trasformedDashboardItems.push(result);
                         const rowDimensions = element.eventChart.rowDimensions;
                         const columnDimensions = element.eventChart.columnDimensions;
-                        // const mapData =  await this.buildMap(element, result, rowDimensions, columnDimensions, 'eventChart');
-                        const chartOpt =  this.buildChart(element, result, rowDimensions, columnDimensions, 'eventChart');
-                        // const tableData =  await this.builTable(element, result, rowDimensions, columnDimensions, 'eventChart');
+                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, 'eventChart');
+                        const chartOpt = this.buildEventChart(element, result, rowDimensions, columnDimensions, orgUnitId, 'eventChart');
+                        const tableData = await this.builTable(element, result, rowDimensions, columnDimensions, orgUnitId, 'eventChart');
                         this.dashboardItems.push({
                             chartOpt: chartOpt,
                             tableData: [],
@@ -209,18 +212,18 @@ return 0;
             //     this.dashboards = resultado.dashboards;
         });
 
-            this.apiRequestsService.getOrgUnits().subscribe(resultado => {
-                resultado.organisationUnits.forEach((item) => {
-                    this.orgUnits .push(item);
-                });
+        this.apiRequestsService.getOrgUnits().subscribe(resultado => {
+            resultado.organisationUnits.forEach((item) => {
+                this.orgUnits.push(item);
             });
+        });
         // console.log(this.chartOptions);
 
     }
 
 
     // Funcao para construir tabelas
-    builTable(dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType) {
+    builTable(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, dashboardItemType) {
         const rowNames = [];
         let tableRows = [];
         const tableRowDimensions = [];
@@ -258,203 +261,214 @@ return 0;
         // console.log(tableRows)
 
         return {
-                rowsValues: tableRows,
-                rowDimensions: tableRowDimensions,
-                columnDimensions: tableColumnDimensions
-            };
+            rowsValues: tableRows,
+            rowDimensions: tableRowDimensions,
+            columnDimensions: tableColumnDimensions
+        };
     }
 
-   buildChart(dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType) {
-    // Criamos tabela para o grafico
-       let chartType = 'COLUMN';
-if (dashboardItem[dashboardItemType].type !== undefined) {
-    chartType = dashboardItem[dashboardItemType].type;
-}
-    // this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
-
-
-    let dataDItype = null;
-    const xcategories = [];
-    const dataDIArray = [];
-    let series = null;
-    const chartOptions = [];
-    let columnNamePosition;
-    const rowDimensionValue = rowDimensions[0];
-    const columnDimensionsValue = columnDimensions[0];
-
-    if (rowDimensionValue === 'ou') {
-    series = 'organisationUnits';
-} else if (rowDimensionValue === 'pe') {
-    series = 'periods';
-} else if (rowDimensionValue === 'dx') {
-    series = 'dataDimensionItems';
-} else {
-        series = 'dataElementDimensions';
-    }
-       // Verificamos a posicao do elemento na coluna
-       result.headers.forEach( (header, index) => {
-
-           // if (columnDimensionsValue === 'pe' || columnDimensionsValue === 'dx' || columnDimensionsValue === 'pe') {
-               if (header.name === columnDimensionsValue) {
-                   columnNamePosition = index;
-               }
-           // }
-           // else {
-           //     if (header.name === columnDimensionsValue) {
-           //         columnNamePosition = columnDimensionsValue;
-           //     }
-           // }
-       });
-// Carregamos os dados PAra cada Dimensao, Unidade organizacional ou periodo que se encontra nas series
-       dashboardItem[dashboardItemType][series].forEach((dataDI) => {
-           // console.log (dataDI);x
-    let serieID;
-    const rowsArray = [];
-    // Definimos o id da dimensao pois este pode variar consoante o tipo de serie
-    //        console.log(rowDimensionValue)
-    if (rowDimensionValue === 'ou' || rowDimensionValue === 'pe') {
-        serieID = dataDI.id;
-    }  if (rowDimensionValue === 'dx') {
-        dataDItype = this.apiRequestsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
-        serieID = dataDI[dataDItype].id;
-    } if (rowDimensionValue !== 'dx' && rowDimensionValue !== 'ou' && rowDimensionValue !== 'pe') {
-        console.log('e diferente');
-        console.log(dataDI);
-        if (dataDI.hasOwnProperty('dataElement')) {
-            dataDItype = 'DATA_ELEMENT';
-            serieID = dataDI.dataElement.id;
+    buildChart(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, dashboardItemType) {
+        // Criamos tabela para o grafico
+        let chartType = 'COLUMN';
+        if (dashboardItem[dashboardItemType].type !== undefined) {
+            chartType = dashboardItem[dashboardItemType].type;
         }
+        // this.builTable(element, result, rowDimensions, columnDimensions, 'chart');
 
-    }
 
-    result.rows.forEach((row, index) => {
-        // console.log()
-        row.forEach((rowElment, index2) => {
-            let posicaoNaRow = 0;
-            if (dashboardItemType === 'eventChart') {
-                posicaoNaRow = 1;
+        let dataDItype = null;
+        const xcategories = [];
+        const dataDIArray = [];
+        let series = null;
+        const chartOptions = [];
+        let columnNamePosition;
+        const rowDimensionValue = rowDimensions[0];
+        const columnDimensionsValue = columnDimensions[0];
+
+        if (rowDimensionValue === 'ou') {
+            series = 'organisationUnits';
+        } else if (rowDimensionValue === 'pe') {
+            series = 'periods';
+        } else if (rowDimensionValue === 'dx') {
+            series = 'dataDimensionItems';
+        } else {
+            series = 'dataElementDimensions';
+        }
+        // Verificamos a posicao do elemento na coluna
+        result.headers.forEach((header, index) => {
+
+            // if (columnDimensionsValue === 'pe' || columnDimensionsValue === 'dx' || columnDimensionsValue === 'pe') {
+            if (header.name === columnDimensionsValue) {
+                columnNamePosition = index;
             }
-            if (rowElment.split('.')[posicaoNaRow] === serieID) {
-                // console.log(rowElment.split('.')[0] )
-                // console.log(serieID)
-                const filterNameID = row[columnNamePosition];
-                const filterName = result.metaData.items[filterNameID].name
-                xcategories.push(filterName);
-                if (chartType === 'PIE') {
-                    // console.log("E pie");
-                    // console.log(result.metaData.items[filterName].name);
-                    // console.log(row[row.length - 1]);
-                    rowsArray.push({
-                        'name': filterName,
-                        'y': parseFloat(row[row.length - 1])
-                    });
-                } else if (chartType === 'COLUMN' || chartType === 'STACKED_COLUMN' || chartType === 'LINE' || chartType === 'BAR' ) {
-                    // console.log(dashboardItem)
-                    // console.log(row[row.length - 1])
-                    rowsArray.push(parseFloat(row[row.length - 1]));
+            // }
+            // else {
+            //     if (header.name === columnDimensionsValue) {
+            //         columnNamePosition = columnDimensionsValue;
+            //     }
+            // }
+        });
+        let teste = [orgUnitId];
+// Carregamos os dados PAra cada Dimensao, Unidade organizacional ou periodo que se encontra nas series
+        dashboardItem[dashboardItemType][series].forEach((dataDI) => {
+            console.log (dataDI);
+            let serieID;
+            const rowsArray = [];
+            // Definimos o id da dimensao pois este pode variar consoante o tipo de serie
+            //        console.log(rowDimensionValue)
+            if (rowDimensionValue === 'ou' || rowDimensionValue === 'pe') {
+                serieID = dataDI.id;
+            }
+            if (rowDimensionValue === 'dx') {
+                dataDItype = this.apiRequestsService.convertUnderscoreToCamelCase(dataDI.dataDimensionItemType);
+                serieID = dataDI[dataDItype].id;
+            }
+            if (rowDimensionValue !== 'dx' && rowDimensionValue !== 'ou' && rowDimensionValue !== 'pe') {
+                if (dataDI.hasOwnProperty('dataElement')) {
+                    dataDItype = 'DATA_ELEMENT';
+                    serieID = dataDI.dataElement.id;
                 }
+
+            }
+            // console.log(result.rows)
+            result.rows.forEach((row, index) => {
+                // console.log()
+                // row.forEach((rowElment, index2) => {
+                    let posicaoNaRow = 0;
+                    if (dashboardItemType === 'eventChart') {
+                        posicaoNaRow = 1;
+                    }
+
+                    // console.log(row[posicaoNaRow])
+                    if (row[posicaoNaRow] === serieID) {
+                        // console.log(rowElment.split('.')[0] )
+                        // console.log(serieID)
+                        let filterNameID;
+                             filterNameID = row[columnNamePosition];
+                        const filterName = result.metaData.items[filterNameID].name;
+                        xcategories.push(filterName);
+                        if (chartType === 'PIE') {
+                            // console.log("E pie");
+                            // console.log(result.metaData.items[filterName].name);
+                            // console.log(row[row.length - 1]);
+                            rowsArray.push({
+                                'name': filterName,
+                                'y': parseFloat(row[row.length - 1])
+                            });
+                        } else if (chartType === 'COLUMN' || chartType === 'STACKED_COLUMN' || chartType === 'LINE' || chartType === 'BAR') {
+                            // console.log(dashboardItem)
+                            // console.log(row[row.length - 1])
+                            rowsArray.push(parseFloat(row[row.length - 1]));
+                        }
+                        }
+                // });
+            });
+// console.log(rowDimensionValue)
+            if (chartType === 'COLUMN' || chartType === 'STACKED_COLUMN' || chartType === 'LINE' || chartType === 'PIE' || chartType === 'BAR') {
+                if (rowDimensionValue === 'ou' || rowDimensionValue === 'pe') {
+                    if (orgUnitId !== null && dataDI.id === orgUnitId || orgUnitId===null ){
+                    dataDIArray.push({'name': dataDI.displayName, 'data': rowsArray});
+                    }
+                    // console.log(dataDIArray);
+
+                }
+                if (rowDimensionValue === 'dx') {
+                    dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
+                }
+                if (rowDimensionValue !== 'dx' && rowDimensionValue !== 'pe' && rowDimensionValue !== 'ou') {
+                    dataDIArray.push({'name': 'teste', 'data': rowsArray});
+                    // console.log(dataDIArray);
+
+                }
+                // } else if (element.chart.type === 'PIE') {
+                //     dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
+                //
             }
         });
-    });
-// console.log(rowDimensionValue)
-    if (chartType === 'COLUMN' || chartType === 'STACKED_COLUMN' || chartType === 'LINE' || chartType === 'PIE' || chartType === 'BAR' ) {
-        if (rowDimensionValue === 'ou' || rowDimensionValue === 'pe') {
-            dataDIArray.push({'name': dataDI.displayName, 'data': rowsArray});
-            // console.log(dataDIArray);
-
-        } if (rowDimensionValue === 'dx') {
-            dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
-        }
-        if (rowDimensionValue !== 'dx' && rowDimensionValue !== 'pe' && rowDimensionValue !== 'ou') {
-            dataDIArray.push({'name': 'teste', 'data': rowsArray});
-            // console.log(dataDIArray);
-
-        }
-        // } else if (element.chart.type === 'PIE') {
-        //     dataDIArray.push({'name': dataDI[dataDItype].displayName, 'data': rowsArray});
-        //
-    }
-});
 // Atribuimos os valores trabalhados de acordo com o tipo de grafico
 //        console.log(dataDIArray);
-this.series = dataDIArray;
+        this.series = dataDIArray;
 
 //
-       let stackedColumnOptions = null;
-       let chartTypeAtt = chartType;
-       if (chartTypeAtt === 'STACKED_COLUMN') {
-           chartTypeAtt = 'bar';
-           stackedColumnOptions = {
-                   stacking: 'normal'
-           };
-       } else {
-           chartTypeAtt = chartType.toLowerCase();
-       }
+        let stackedColumnOptions = null;
+        let chartTypeAtt = chartType;
+        if (chartTypeAtt === 'STACKED_COLUMN') {
+            chartTypeAtt = 'bar';
+            stackedColumnOptions = {
+                stacking: 'normal'
+            };
+        } else {
+            chartTypeAtt = chartType.toLowerCase();
+        }
 // console.log(element);
 // console.log([49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]);
 // console.log(this.series)
 // this.title = ;
 
-    return this.waiting = false, {
-        series: dataDIArray,
-        chart: {
-            type: chartTypeAtt
-            // type: 'pie'
-        },
-        credits: {
-            enabled: false
-        },
-        title: {
-            text: ''
-        },
-        xAxis: {
-            categories: xcategories,
-            crosshair: false
-        },
-        legend: {
-            reversed: true
-        },
-        plotOptions: {
-            line: {
-                dataLabels: {
-                    enabled: true
-                }
+        return this.waiting = false, {
+            series: dataDIArray,
+            chart: {
+                type: chartTypeAtt
+                // type: 'pie'
             },
-            bar: {
-                dataLabels: {
-                    enabled: true
-                }
+            credits: {
+                enabled: false
             },
-            column: {
-                dataLabels: {
-                    enabled: true
-                },
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
+            title: {
+                text: ''
+            },
+            xAxis: {
+                categories: xcategories,
+                crosshair: false
+            },
+            legend: {
+                reversed: true
+            },
+            plotOptions: {
+                line: {
                     dataLabels: {
-                        enabled: true,
-                        format: '<b>{name}</b>: {point.y:.1f}',
+                        enabled: true
                     }
+                },
+                bar: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                },
+                column: {
+                    dataLabels: {
+                        enabled: true
+                    },
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{name}</b>: {point.y:.1f}',
+                        }
+                    }
+                },
+                series: {
+                    stackedColumnOptions
                 }
-            },
-            series: {
-                stackedColumnOptions
+
             }
 
-        }
+        };
 
-    };
+    }
 
-}
+    buildEventChart(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, dashboardItemType) {
 
-    buildMap (dashboardItem, result, rowDimensions, columnDimensions, dashboardItemType) {
-      const prom =  new Promise((resolve, reject) => {
-          const targetDashboardItem = dashboardItem[dashboardItemType];
+    }
+
+    buildMap(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, dashboardItemType) {
+        const prom = new Promise((resolve, reject) => {
+            const targetDashboardItem = dashboardItem[dashboardItemType];
             const geoData = [];
             let Maplegends1 = [];
             let mapData = {};
-            this.mapService.criarGeoJson(targetDashboardItem).subscribe((obj) => {
+            this.mapService.criarGeoJson(targetDashboardItem, orgUnitId).subscribe((obj) => {
 
                 let coordenadas = [];
                 obj.forEach((el, index) => {
@@ -562,7 +576,7 @@ this.series = dataDIArray;
                             onEachFeature: this.mapService.onEachFeature
                         });
 
-                        mapData =  {
+                        mapData = {
                             mapOptions: {
                                 center: L.latLng(0, 0),
                                 scrollWheelZoom: false,
@@ -580,7 +594,7 @@ this.series = dataDIArray;
                 });
             });
         });
-      return prom;
-  }
+        return prom;
+    }
 }
 

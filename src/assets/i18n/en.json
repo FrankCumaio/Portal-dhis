@@ -7,6 +7,11 @@
         "title": "Mozambique's health information system portal"
 
     },
+    "sidebar": {
+        "period": "Period",
+        "region": "Region",
+        "regionAll": "All Regions"
+    },
     "filters": {
         "title": "Filters",
         "reset_btn": "Reset Filters", 

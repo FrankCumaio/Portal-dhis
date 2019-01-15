@@ -133,7 +133,7 @@
 
                             <select class="custom-select" id="inputGroupSelect02"
                                     (change)="changeOrgUnit($event.target.value,$event.target)" placeholder="OrgUnit">
-                                <option [value]="">Selecionar</option>
+                                <option [value]="">{{ 'sidebar.regionAll' | translate }}</option>
 
                                 <ng-container *ngFor="let orgUnit of orgUnits, index as i">
                                     <ng-container>
