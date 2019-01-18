@@ -78,10 +78,13 @@ export class ApiRequestsService {
 //        Esta funcao transforma os dados brutos para que sejam eviadas requisicoes  ao analytics
         const dataDimensions = [];
         let dataDimensionsFilter = [];
+        let dataDimensionsLegendSet = [];
         const periods = [];
         const orgUnits = [];
         const organisationUnitLevels = [];
-        let type = ' ';
+        let type = null;
+        let aggregationType = null;
+        let dataElementValueDimension = null;
         let filters = [];
         let rows = [];
         let columns = [];
@@ -91,9 +94,19 @@ if (dashboardItem.type) {
     // Preparamos outros elementos diferentes de Mapas
     type = this.convertUnderscoreToCamelCase(dashboardItem.type);
 }
+
+
 // (dashboardItem[type]);
 
         if (dashboardItem[type]) {
+            if (dashboardItem[type].hasOwnProperty('aggregationType')) {
+                // Pegamos o tipo de agregacao para objectos do tipo evento
+                aggregationType =  dashboardItem[type].aggregationType;
+            }
+            if (dashboardItem[type].hasOwnProperty('dataElementValueDimension')) {
+                // Pegamos o value da aggregacao
+                dataElementValueDimension =  dashboardItem[type].dataElementValueDimension.id;
+            }
         if (dashboardItem[type].hasOwnProperty('dataDimensionItems')) {
             dashboardItem[type].dataDimensionItems.forEach((item) => {
                 // (item);
@@ -115,6 +128,9 @@ if (dashboardItem.type) {
             dashboardItem[type].dataElementDimensions.forEach((item) => {
                 if (item.hasOwnProperty('filter')) {
                     dataDimensionsFilter = item.filter;
+                }
+                if (item.hasOwnProperty('legendSet')) {
+                    dataDimensionsLegendSet.push(item.legendSet);
                 }
                 dataDimensions.push({
                     'type': 'dataElement',
@@ -182,7 +198,6 @@ if (dashboardItem.type) {
             periodKeys.forEach((period) => {
                 if (dashboardItem[type].relativePeriods[period] === true) {
                     periods.push(this.convertCamelCaseToUnderscore(period));
-                    (periods);
                 }
             });
         }
@@ -227,6 +242,7 @@ if (dashboardItem.type) {
         return {
             dx: dataDimensions,
             dxFilter: dataDimensionsFilter,
+            dxLegendSet: dataDimensionsLegendSet,
             pe: periods,
             ou: orgUnits,
             organisationUnitLevels: organisationUnitLevels,
@@ -236,6 +252,8 @@ if (dashboardItem.type) {
             rows: rows,
             columns: columns,
             type: type,
+            aggregationType: aggregationType,
+            dataElementValueDimension: dataElementValueDimension,
         };
 
     }
@@ -255,7 +273,9 @@ if (dashboardItem.type) {
     getItemData(options: any, orgUnitID): Observable<any> {
         // console.log (options.type)
      let url = null, urlLevls = ``, urlCategories = ``, urlDimensions = ``,wichCategory = null;
-
+       let dataElementValueDimension = ``;
+       let aggregationType = ``;
+       let dxHasLegendSet = ``;
 
      if (options.organisationUnitLevels.length > 0) {
          urlLevls = options.organisationUnitLevels.map((el) => el).join(';') + ';';
@@ -266,9 +286,14 @@ if (dashboardItem.type) {
         // formamos as dimensoes para a url
 
 // console.log(options);
+// console.log(options.dxLegendSet.length);
         // formamos as categorias para a url
-
+        if (options.dxLegendSet.length > 0) {
+            dxHasLegendSet = '-' + options.dxLegendSet.map((el) => el.id);
+            // console.log(dxHasLegendSet);
+        }
         options.columns.forEach((column) => {
+            // console.log('pode fazer colunas');
             if (column === 'ou' && options[column].length > 0) {
                 if (orgUnitID === null) {
                     urlDimensions = urlDimensions + `dimension=${column}:${urlLevls}${options[column].map((el) => el).join(';')}&`;
@@ -278,34 +303,43 @@ if (dashboardItem.type) {
                 }
             } else
             if (column === 'pe' && options[column].length > 0) {
+                // console.log('pode fazer pe');
+                // console.log(options[column].map((el) => el));
+
                 urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el).join(';')}&`;
             } else
             if (column === 'dx' && options[column].length > 0) {
+                // console.log('pode fazer dx');
                 urlDimensions = urlDimensions + `dimension=${column}:${options[column].map((el) => el.id).join(';')}&`;
             } else {
                 // verificamos se o evento tem filtros
                 if (options.dxFilter.length > 0) {
                     urlDimensions = urlDimensions + `dimension=${column}:${options.dxFilter}&`;
-                    console.log(urlDimensions);
+                    // console.log(urlDimensions);
                 } else {
+                    // console.log('pode fazer dx3');
                     urlDimensions = urlDimensions + `dimension=${column}&`;
                 }
             }
         });
 
         options.rows.forEach((row) => {
+            // console.log('pode fazer row');
             if (row === 'ou' && options[row].length > 0) {
+                // console.log('pode fazer ou');
                 if (orgUnitID === null) {
                     urlDimensions = urlDimensions + `dimension=${row}:${urlLevls}${options[row].map((el) => el).join(';')}&`;
                 } else {
                     urlDimensions = urlDimensions + `dimension=${row}:${urlLevls}${orgUnitID}&`;
                 }
             } else if ( row === 'pe' && options[row].length > 0) {
+                // console.log('pode fazer pe');
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el).join(';')}&`;
             } else if (row === 'dx' && options[row].length > 0) {
+                // console.log('pode fazer dx2');
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el.id).join(';')}&`;
             } else {
-                urlDimensions = urlDimensions + `dimension=${row}&`;
+                urlDimensions = urlDimensions + `dimension=${row}${dxHasLegendSet}&`;
             }
         });
 
@@ -317,11 +351,11 @@ if (dashboardItem.type) {
                     urlDimensions = urlDimensions + `filter=${fltr}:${urlLevls}${orgUnitID}&`;
                 }
                 } else if (fltr === 'pe' && options[fltr].length > 0) {
-                urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el).join(';')}&`;
+                urlDimensions = urlDimensions + `filter=${fltr}:${options[fltr].map((el) => el).join(';')}&`;
             } else if (fltr === 'dx' && options[fltr].length > 0) {
-                urlDimensions = urlDimensions + `&filter=${fltr}:${options[fltr].map((el) => el.id).join(';')}&`;
+                urlDimensions = urlDimensions + `filter=${fltr}:${options[fltr].map((el) => el.id).join(';')}&`;
             } else {
-                urlDimensions = urlDimensions + `&filter=${fltr}&`;
+                urlDimensions = urlDimensions + `filter=${fltr}&`;
             }
         });
 
@@ -359,9 +393,16 @@ if (dashboardItem.type) {
         // (options.periods);
         // LAST_5_YEARS
             // Resto dos items
+        if (options.aggregationType !== null) {
+            aggregationType = `&aggregationType=${options.aggregationType}`;
+        }
+        if (options.aggregationType !== null) {
+            dataElementValueDimension = `&value=${options.dataElementValueDimension}`;
+        }
+
 
         if (options.type === 'map' || options.type === 'chart' || options.type === 'reportTable') {
-            console.log(options)
+            // console.log(options)
              return this.http.get(`${this.connectionService.apiURI}/api/analytics.json?`
                 + urlDimensions,
                 {headers: this.headers});
@@ -371,7 +412,9 @@ if (dashboardItem.type) {
                     + `${options.program}.json?`
                     + urlDimensions
                     + `stage=${options.programStage}`
-                    + `&displayProperty=NAME&outputType=EVENT`, { headers: this.headers });
+                    + `&displayProperty=NAME&outputType=EVENT`
+                    + aggregationType
+                    + dataElementValueDimension, { headers: this.headers });
         }
     }
 
