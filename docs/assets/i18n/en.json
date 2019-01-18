@@ -1,0 +1,20 @@
+{
+    "navbar": {
+        "home": "Home",
+        "report": "Reports",
+        "downloads": "Downloads",
+        "about": "About Us",
+        "title": "SISMA - Public data portal"
+
+    },
+    "filters": {
+        "title": "Filters",
+        "reset_btn": "Reset Filters", 
+        "allReports": "All reports",
+        "allReportGroups": "All report groups"
+    },
+    "reports": {
+        "all": "All reports",
+        "selected": "Selected Reports"
+    }
+}
