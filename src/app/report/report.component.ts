@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject, ElementRef, AfterViewInit} from '@angular/core';
 import * as Highcharts from 'highcharts';
+import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
 import * as HighMaps from 'highcharts/highmaps';
 import * as HC_exporting from 'highcharts/modules/exporting';
 import * as HC_map from 'highcharts/modules/map';
@@ -16,6 +17,7 @@ import * as $ from 'jquery';
 
 HC_map( Highcharts);
 HC_exporting( Highcharts);
+NoDataToDisplay(Highcharts);
 
 // require('../../js/world')(Highcharts);
 
@@ -48,8 +50,12 @@ export class ReportComponent implements OnInit {
 
     ngOnInit() {
         Highcharts.setOptions({
-            colors: ['rgb(169, 190, 59)', 'rgb(85, 140, 192)', 'rgb(85, 140, 192)', 'rgb(255, 159, 58)', 'rgb(150, 143, 143)', 'rgb(183, 64, 159);', 'rgb(255, 218, 100)', 'rgb(79, 189, 174)', 'rgb(183, 128, 64)']
+            colors: ['rgb(169, 190, 59)', 'rgb(85, 140, 192)', 'rgb(85, 140, 192)', 'rgb(255, 159, 58)',
+                'rgb(150, 143, 143)', 'rgb(183, 64, 159);', 'rgb(255, 218, 100)', 'rgb(79, 189, 174)',
+                'rgb(183, 128, 64)'],
+            lang: {noData: "Sem dados por mostrar"}
         });
+
         console.log('AppComponent: OnInit()');
         this.getData(0);
     }
@@ -65,7 +71,6 @@ export class ReportComponent implements OnInit {
         this.chartOptions = this.dashboardService.getDashboardItems(dashboardIndex, null, null);
         this.dashboards = this.dashboardService.getDashboards();
         this.orgUnits = this.dashboardService.getOrgUnits();
-        this.periods = this.dashboardService.getPeriods();
         this.selectedDashboard = this.dashboardService.getSelectedDashboard();
         this.selectedOrgUnit = this.dashboardService.getSelectedOrgUnit();
         this.waiting = this.dashboardService.waiting;

@@ -223,7 +223,7 @@
                             <mat-button-toggle mat-button="" color="accent"
                                     matTooltip="Mostrar como gráfico de barras"
                                     (click)="changeReportType(i, 'CHART')"
-                                    [disabled]="dashItem.renderedType === 'CHART'">
+                                    [disabled]="dashItem.renderedType === 'CHART' || dashItem.renderedType === 'EVENT_CHART'">
                                 <mat-icon fontSet="fa" fontIcon="fa-chart-pie"></mat-icon>
                                 GRAFICO
                             </mat-button-toggle>

@@ -82,6 +82,7 @@ export class ApiRequestsService {
         const periods = [];
         const orgUnits = [];
         const organisationUnitLevels = [];
+        const organisationUnitGroups = [];
         let type = null;
         let aggregationType = null;
         let dataElementValueDimension = null;
@@ -220,6 +221,21 @@ if (dashboardItem.type) {
                 orgUnits.push(item.id);
             });
         }
+        if (dashboardItem[type].hasOwnProperty('organisationUnitGroupSetDimensions')) {
+                // console.log('organisationUnitGroupSetDimensions')
+                console.log(dashboardItem[type].organisationUnitGroupSetDimensions)
+            if (dashboardItem[type].organisationUnitGroupSetDimensions.length > 0) {
+           if (dashboardItem[type].organisationUnitGroupSetDimensions[0].hasOwnProperty('organisationUnitGroups')) {
+               console.log('organisationUnitGroups')
+               dashboardItem[type].organisationUnitGroupSetDimensions[0].organisationUnitGroups.forEach((item) => {
+                   console.log(item.id)
+                   organisationUnitGroups.push(item.id);
+               });
+           }
+            }
+
+
+        }
 
             if (dashboardItem[type].userOrganisationUnit === true) {
                 orgUnits.push('USER_ORGUNIT');
@@ -246,6 +262,7 @@ if (dashboardItem.type) {
             pe: periods,
             ou: orgUnits,
             organisationUnitLevels: organisationUnitLevels,
+            organisationUnitGroups: organisationUnitGroups,
             program: program,
             programStage: programStage,
             filters: filters,
@@ -318,7 +335,15 @@ if (dashboardItem.type) {
                     // console.log(urlDimensions);
                 } else {
                     // console.log('pode fazer dx3');
-                    urlDimensions = urlDimensions + `dimension=${column}&`;
+                    // if (options.organisationUnitGroups.length > 0) {
+                    //     console.log('ola1')
+                    //
+                    //     urlDimensions = urlDimensions +
+                    //         `dimension=${column};${options.organisationUnitGroups.map((el) => el).join(';')}`;
+                    // } else {
+                    //     console.log('ola2')
+                        urlDimensions = urlDimensions + `dimension=${column}&`;
+                    // }
                 }
             }
         });
@@ -339,7 +364,15 @@ if (dashboardItem.type) {
                 // console.log('pode fazer dx2');
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el.id).join(';')}&`;
             } else {
-                urlDimensions = urlDimensions + `dimension=${row}${dxHasLegendSet}&`;
+                if (options.organisationUnitGroups.length > 0) {
+                    console.log('ola1')
+
+                    urlDimensions = urlDimensions +
+                        `dimension=${row}:${options.organisationUnitGroups.map((el) => el).join(';')}&`;
+                } else {
+                    console.log('ola2')
+                    urlDimensions = urlDimensions + `dimension=${row}${dxHasLegendSet}&`;
+                }
             }
         });
 

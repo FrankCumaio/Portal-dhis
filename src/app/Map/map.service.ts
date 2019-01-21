@@ -43,8 +43,10 @@ export class MapService {
         if (orgUnitId === null) {
             item.organisationUnits.forEach((el) => {
                     orgunits = orgunits + el.id + `;`;
-                }
-            );
+                });
+            if ( item.organisationUnits.length < 2) {
+                orgunits = orgunits + `LEVEL-2;`;
+            }
         } else {
             orgunits = orgUnitId;
         }
