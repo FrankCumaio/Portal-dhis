@@ -50,7 +50,7 @@ export class ReportComponent implements OnInit {
 
     ngOnInit() {
         Highcharts.setOptions({
-            colors: ['rgb(169, 190, 59)', 'rgb(85, 140, 192)', 'rgb(85, 140, 192)', 'rgb(255, 159, 58)',
+            colors: ['rgb(169, 190, 59)', 'rgb(85, 140, 192)', 'rgb(211, 73, 87)', 'rgb(255, 159, 58)',
                 'rgb(150, 143, 143)', 'rgb(183, 64, 159);', 'rgb(255, 218, 100)', 'rgb(79, 189, 174)',
                 'rgb(183, 128, 64)'],
             lang: {noData: "Sem dados por mostrar"}

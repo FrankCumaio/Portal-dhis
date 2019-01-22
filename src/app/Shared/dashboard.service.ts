@@ -121,15 +121,16 @@ export class DashboardService {
 
                 //    Vamos la tratar das tabelas
                 if (element.type === 'REPORT_TABLE' || element.type === 'EVENT_REPORT') {
-                    console.log(element);
+                    const type = this.apiRequestsService.convertUnderscoreToCamelCase(element.type);
                     await this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element), orgUnitId).subscribe(async (result) => {
-                        const rowDimensions = element.reportTable.rowDimensions;
-                        const columnDimensions = element.reportTable.columnDimensions;
+                       console.log(element)
+                        const rowDimensions = element[type].rowDimensions;
+                        const columnDimensions = element[type].columnDimensions;
                         // console.log(rowDimensions);
                         // console.log(columnDimensions);
-                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, 'reportTable');
-                        const chartOpt = this.buildEventChart(element, result, rowDimensions, columnDimensions, orgUnitId, 'reportTable');
-                        const tableData = await this.builTable(element, result, rowDimensions, columnDimensions, orgUnitId, 'reportTable');
+                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, type);
+                        const chartOpt = this.buildEventChart(element, result, rowDimensions, columnDimensions, orgUnitId, type);
+                        const tableData = await this.builTable(element, result, rowDimensions, columnDimensions, orgUnitId, type);
 
 
                         this.dashboardItems.push({
@@ -138,7 +139,7 @@ export class DashboardService {
                             mapData: mapData,
                             type: element.type,
                             renderedType: element.type,
-                            displayName: element.reportTable.displayName
+                            displayName: element[type].displayName
 
                         });
                     });
@@ -232,13 +233,6 @@ export class DashboardService {
         const tableColumnDimensions = [];
         // console.log(rowDimensions);
         // console.log(columnDimensions);
-        console.log('dashboardotem', dashboardItem);
-        console.log('result', result);
-        console.log('rowDimensions', rowDimensions);
-
-        console.log('columnDimensions', columnDimensions);
-        console.log('orgUnitId', orgUnitId);
-        console.log('dashboardItemType', dashboardItemType);
 
         result.headers.forEach((header) => {
             rowNames.push(header.column);
@@ -277,6 +271,13 @@ export class DashboardService {
     }
 
     buildEventChart(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, dashboardItemType) {
+        // console.log('dashboardotem', dashboardItem);
+        // console.log('result', result);
+        // console.log('rowDimensions', rowDimensions);
+        //
+        // console.log('columnDimensions', columnDimensions);
+        // console.log('orgUnitId', orgUnitId);
+        console.log('dashboardItemType', dashboardItemType);
 
         const rowDimensionValue = rowDimensions[0];
         const columnDimensionsValue = columnDimensions[0];
@@ -302,6 +303,8 @@ export class DashboardService {
 
         if (chartTypeAtt === 'STACKED_COLUMN') {
             chartTypeAtt = 'column';
+        } else if (chartTypeAtt === 'STACKED_BAR') {
+            chartTypeAtt = 'bar';
         } else {
             chartTypeAtt = chartType.toLowerCase();
             }
@@ -333,7 +336,7 @@ export class DashboardService {
 
         // Pegamos cada dimensao para preenchermos o array
        // console.log(columnDimensions)
-       // console.log(rowDimensions)
+       // console.log(result.metaData.dimensions[columnDimensions[0]])
        // console.log( result.metaData.dimensions[rowDimensions[0]])
 
 
@@ -346,7 +349,7 @@ export class DashboardService {
             // Pegamos valor por valor de cada linha e formamos o nosso array para graficos tipo PIE
             result.metaData.dimensions[rowDimensions[0]].forEach((rowDimension, i) => {
 
-
+                // console.log(rowDimension)
                 result.rows.forEach(row => {
                     // percoremos o result.items para verificar o codigo do objceto de modo a ter o nome
                     // result.metaData.dimensions[rowDimensions[0]].forEach(metaDataItem => {
@@ -354,6 +357,7 @@ export class DashboardService {
                     // console.log(rowNamePosition);
                     let rowMetadata;
                     let columnMetadata;
+                    // console.log(rowDimensionValue)
                     // Organizamos os dados que sao usados para comparacao de valores nas linhas
                     if (rowDimensionValue === 'ou' || rowDimensionValue === 'pe' || rowDimensionValue === 'dx') {
                         category = result.metaData.items[rowDimension];
@@ -379,11 +383,24 @@ export class DashboardService {
                         series = result.metaData.items[columnDimension].name;
                         // series =
                         // console.log(columnMetadata);
+                        // console.log(columnMetadata)
+                        // console.log(series)
 
                     } else {
                         // console.log(row[columnNamePosition]);
+                        // console.log(result.metaData.items[row[columnNamePosition]])
+                        if (result.metaData.items[row[columnNamePosition]] !== undefined) {
+                            columnMetadata = result.metaData.items[row[columnNamePosition]].name;
+                            series = result.metaData.items[columnDimension].name;
+                        // }
+                        } else {
                         series = result.metaData.items[columnDimension].code;
                         columnMetadata = row[columnNamePosition];
+
+                        // console.log(series)
+                        }
+                        // console.log(series)
+                        // console.log(columnMetadata)
                     }
                     // console.log(result.metaData.items[columnDimension])
                     // console.log(result.metaData.items[row[0]])
@@ -463,7 +480,7 @@ export class DashboardService {
             }
         });
 
-console.log(stackedColumnOptions);
+// console.log(stackedColumnOptions);
         // for (let i = 0; i < dataDIArray.length; i++){
         //     dataDIArray[i].data = dataDIArray[i].data.sort(function(a, b) {
         //         return a[0] - b[0] ;
@@ -517,7 +534,7 @@ console.log(stackedColumnOptions);
     buildMap(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, dashboardItemType) {
         const prom = new Promise((resolve, reject) => {
             const targetDashboardItem = dashboardItem[dashboardItemType];
-            console.log(targetDashboardItem);
+            // console.log(targetDashboardItem);
             const geoData = [];
             let Maplegends1 = [];
             let mapData = {};

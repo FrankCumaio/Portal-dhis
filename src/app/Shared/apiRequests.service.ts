@@ -31,7 +31,7 @@ export class ApiRequestsService {
         // ('olaaaa');
         // (this.connectionService.getApiURI);
         // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
-        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
+        return this.http.get(`${this.connectionService.apiURI}/api/29/dashboards.json?fields=:`
              + `idName,translations,dashboardItems[:idName,type,id,`
             + `reportTable[:idName,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],organisationUnits[:idName],*],`
             + `eventChart[:all,organisationUnits[:idName],dataElementDimensions[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],*],`
@@ -46,14 +46,14 @@ export class ApiRequestsService {
         // ('olaaaa');
         // (this.connectionService.getApiURI);
         // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
-        return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?level=2`,
+        return this.http.get(`${this.connectionService.apiURI}/api/29/organisationUnits.json?level=2`,
             { headers: this.headers });
     }
 
 
     getDataDimensionName(id, type)  {
         // (type);
-        this.http.get(`${this.connectionService.apiURI}/api/` + type + `s/` + id + `.json?fields=:`
+        this.http.get(`${this.connectionService.apiURI}/api/29/` + type + `s/` + id + `.json?fields=:`
             + `idName`,
             { headers: this.headers }).subscribe((result: any) => {
             return result.displayName;
@@ -78,11 +78,12 @@ export class ApiRequestsService {
 //        Esta funcao transforma os dados brutos para que sejam eviadas requisicoes  ao analytics
         const dataDimensions = [];
         let dataDimensionsFilter = [];
-        let dataDimensionsLegendSet = [];
+        const dataDimensionsLegendSet = [];
         const periods = [];
         const orgUnits = [];
         const organisationUnitLevels = [];
         const organisationUnitGroups = [];
+        let organisationUnitGroupSet = null;
         let type = null;
         let aggregationType = null;
         let dataElementValueDimension = null;
@@ -223,12 +224,18 @@ if (dashboardItem.type) {
         }
         if (dashboardItem[type].hasOwnProperty('organisationUnitGroupSetDimensions')) {
                 // console.log('organisationUnitGroupSetDimensions')
-                console.log(dashboardItem[type].organisationUnitGroupSetDimensions)
+                // console.log(dashboardItem[type].organisationUnitGroupSetDimensions)
+
             if (dashboardItem[type].organisationUnitGroupSetDimensions.length > 0) {
+
+           if (dashboardItem[type].organisationUnitGroupSetDimensions[0].hasOwnProperty('organisationUnitGroupSet')) {
+               console.log('organisationUnitGroupSet')
+               organisationUnitGroupSet = dashboardItem[type].organisationUnitGroupSetDimensions[0].organisationUnitGroupSet.id;
+           }
            if (dashboardItem[type].organisationUnitGroupSetDimensions[0].hasOwnProperty('organisationUnitGroups')) {
                console.log('organisationUnitGroups')
                dashboardItem[type].organisationUnitGroupSetDimensions[0].organisationUnitGroups.forEach((item) => {
-                   console.log(item.id)
+                   // console.log(item.id)
                    organisationUnitGroups.push(item.id);
                });
            }
@@ -263,6 +270,7 @@ if (dashboardItem.type) {
             ou: orgUnits,
             organisationUnitLevels: organisationUnitLevels,
             organisationUnitGroups: organisationUnitGroups,
+            organisationUnitGroupSet: organisationUnitGroupSet,
             program: program,
             programStage: programStage,
             filters: filters,
@@ -315,7 +323,7 @@ if (dashboardItem.type) {
                 if (orgUnitID === null) {
                     urlDimensions = urlDimensions + `dimension=${column}:${urlLevls}${options[column].map((el) => el).join(';')}&`;
                 } else {
-                    console.log('pode fazer sentido');
+                    // console.log('pode fazer sentido');
                     urlDimensions = urlDimensions + `dimension=${column}:${urlLevls}${orgUnitID}&`;
                 }
             } else
@@ -334,16 +342,12 @@ if (dashboardItem.type) {
                     urlDimensions = urlDimensions + `dimension=${column}:${options.dxFilter}&`;
                     // console.log(urlDimensions);
                 } else {
-                    // console.log('pode fazer dx3');
-                    // if (options.organisationUnitGroups.length > 0) {
-                    //     console.log('ola1')
-                    //
-                    //     urlDimensions = urlDimensions +
-                    //         `dimension=${column};${options.organisationUnitGroups.map((el) => el).join(';')}`;
-                    // } else {
-                    //     console.log('ola2')
+                    if (options.organisationUnitGroups.length > 0 && options.organisationUnitGroupSet === column) {
+                        urlDimensions = urlDimensions +
+                            `dimension=${column}:${options.organisationUnitGroups.map((el) => el).join(';')}&`;
+                    } else {
                         urlDimensions = urlDimensions + `dimension=${column}&`;
-                    // }
+                    }
                 }
             }
         });
@@ -364,13 +368,13 @@ if (dashboardItem.type) {
                 // console.log('pode fazer dx2');
                 urlDimensions = urlDimensions + `dimension=${row}:${options[row].map((el) => el.id).join(';')}&`;
             } else {
-                if (options.organisationUnitGroups.length > 0) {
-                    console.log('ola1')
+                if (options.organisationUnitGroups.length > 0 && options.organisationUnitGroupSet === row) {
+                    // console.log('ola1')
 
                     urlDimensions = urlDimensions +
                         `dimension=${row}:${options.organisationUnitGroups.map((el) => el).join(';')}&`;
                 } else {
-                    console.log('ola2')
+                //     console.log('ola2')
                     urlDimensions = urlDimensions + `dimension=${row}${dxHasLegendSet}&`;
                 }
             }
@@ -436,12 +440,12 @@ if (dashboardItem.type) {
 
         if (options.type === 'map' || options.type === 'chart' || options.type === 'reportTable') {
             // console.log(options)
-             return this.http.get(`${this.connectionService.apiURI}/api/analytics.json?`
+             return this.http.get(`${this.connectionService.apiURI}/api/29/analytics.json?`
                 + urlDimensions,
                 {headers: this.headers});
         } else if (options.type === 'eventChart' || options.type === 'eventReport') {
              // console.log(options)
-                return this.http.get(`${this.connectionService.apiURI}/api/analytics/events/aggregate/`
+                return this.http.get(`${this.connectionService.apiURI}/api/29/analytics/events/aggregate/`
                     + `${options.program}.json?`
                     + urlDimensions
                     + `stage=${options.programStage}`
