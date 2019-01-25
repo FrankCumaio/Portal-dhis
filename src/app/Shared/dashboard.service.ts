@@ -191,17 +191,16 @@ export class DashboardService {
                 if (element.type === 'EVENT_CHART') {
                     this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element), orgUnitId).subscribe(async (result) => {
                         this.trasformedDashboardItems.push(result);
-                        console.log('evento');
                         const rowDimensions = element.eventChart.rowDimensions;
                         const columnDimensions = element.eventChart.columnDimensions;
                         const chartOpt = this.buildEventChart(element, result, rowDimensions, columnDimensions, orgUnitId, 'eventChart');
                         const tableData = this.builTable(element, result, rowDimensions, columnDimensions, orgUnitId, 'eventChart');
-                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, 'eventChart');
+                        // const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, 'eventChart');
 
                         this.dashboardItems.push({
                             chartOpt: chartOpt,
                             tableData: tableData,
-                            mapData: mapData,
+                            mapData: [],
                             type: element.type,
                             renderedType: element.type,
                             displayName: element.eventChart.displayName
@@ -427,7 +426,18 @@ export class DashboardService {
                                 y: parseFloat(row[row.length - 1]),
                             });
                         } else {
-                            rowsArrayToChart.push(parseFloat(row[row.length - 1]));
+                            // Caso o objecto tenha valores comulativos
+                            if (dashboardItem[dashboardItemType].cumulativeValues === true) {
+                                if (rowsArrayToChart.length === 0 ) {
+                                    rowsArrayToChart.push(parseFloat(row[row.length - 1]));
+                                } else {
+                                    const comulativeValue = rowsArrayToChart[rowsArrayToChart.length - 1] + parseFloat(row[row.length - 1]);
+                                    rowsArrayToChart.push(parseFloat(comulativeValue));
+                                }
+                            } else {
+                                rowsArrayToChart.push(parseFloat(row[row.length - 1]));
+
+                            }
                         }
                     }
                     // }

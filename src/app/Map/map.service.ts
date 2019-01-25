@@ -44,9 +44,9 @@ export class MapService {
             item.organisationUnits.forEach((el) => {
                     orgunits = orgunits + el.id + `;`;
                 });
-            if ( item.organisationUnits.length < 2) {
-                orgunits = orgunits + `LEVEL-2;`;
-            }
+        //     if ( item.organisationUnits.length < 2) {
+        //         orgunits = orgunits + `LEVEL-2;`;
+        //     }
         } else {
             orgunits = orgUnitId;
         }
