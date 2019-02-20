@@ -31,7 +31,7 @@ export class ApiRequestsService {
         // ('olaaaa');
         // (this.connectionService.getApiURI);
         // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
-        return this.http.get(`${this.connectionService.apiURI}/api/29/dashboards.json?fields=:`
+        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
              + `idName,translations,dashboardItems[:idName,type,id,`
             + `reportTable[:idName,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],organisationUnits[:idName],*],`
             + `eventChart[:all,organisationUnits[:idName],dataElementDimensions[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],*],`
@@ -46,14 +46,14 @@ export class ApiRequestsService {
         // ('olaaaa');
         // (this.connectionService.getApiURI);
         // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
-        return this.http.get(`${this.connectionService.apiURI}/api/29/organisationUnits.json?level=2`,
+        return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?level=2`,
             { headers: this.headers });
     }
 
 
     getDataDimensionName(id, type)  {
         // (type);
-        this.http.get(`${this.connectionService.apiURI}/api/29/` + type + `s/` + id + `.json?fields=:`
+        this.http.get(`${this.connectionService.apiURI}/api/` + type + `s/` + id + `.json?fields=:`
             + `idName`,
             { headers: this.headers }).subscribe((result: any) => {
             return result.displayName;
@@ -440,12 +440,12 @@ if (dashboardItem.type) {
 
         if (options.type === 'map' || options.type === 'chart' || options.type === 'reportTable') {
             // console.log(options)
-             return this.http.get(`${this.connectionService.apiURI}/api/29/analytics.json?`
+             return this.http.get(`${this.connectionService.apiURI}/api/analytics.json?`
                 + urlDimensions,
                 {headers: this.headers});
         } else if (options.type === 'eventChart' || options.type === 'eventReport') {
              // console.log(options)
-                return this.http.get(`${this.connectionService.apiURI}/api/29/analytics/events/aggregate/`
+                return this.http.get(`${this.connectionService.apiURI}/api/analytics/events/aggregate/`
                     + `${options.program}.json?`
                     + urlDimensions
                     + `stage=${options.programStage}`

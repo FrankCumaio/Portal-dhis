@@ -41,6 +41,7 @@ export class ReportComponent implements OnInit {
     public mode = 'indeterminate';
     public  orgUnits = [];
     public  periods = [];
+    public  actualDashboardIndex;
 
     constructor(
         public dashboardService: DashboardService,
@@ -68,6 +69,8 @@ export class ReportComponent implements OnInit {
     }
     getData(dashboardIndex) {
         this.waiting = true;
+        console.log(dashboardIndex);
+        this.actualDashboardIndex = dashboardIndex;
         this.chartOptions = this.dashboardService.getDashboardItems(dashboardIndex, null, null);
         this.dashboards = this.dashboardService.getDashboards();
         this.orgUnits = this.dashboardService.getOrgUnits();
@@ -77,6 +80,7 @@ export class ReportComponent implements OnInit {
             }
 
     changeDashboard (dashboardIndex) {
+        this.actualDashboardIndex = dashboardIndex;
         this.chartOptions = this.dashboardService.getDashboardItems(dashboardIndex, null, null);
         this.selectedDashboard = this.dashboardService.getSelectedDashboard();
         this.orgUnits = this.dashboardService.getOrgUnits();
@@ -84,8 +88,14 @@ export class ReportComponent implements OnInit {
     }
     changeOrgUnit(orgUnitID) {
         console.log(orgUnitID);
-        this.chartOptions = this.dashboardService.getDashboardItems(null, orgUnitID, null);
+        if (orgUnitID === 'all') {
+            // console.log(this.actualDashboardIndex)
+            this.chartOptions = this.dashboardService.getDashboardItems(this.actualDashboardIndex, null, null);
+        } else {
+            this.chartOptions = this.dashboardService.getDashboardItems(null, orgUnitID, null);
+        }
         this.selectedDashboard = this.dashboardService.getSelectedDashboard();
+
     }
     onMapReady(map: L.Map) {
         map.fitBounds(this.dashboardService.MapGeoJson.getBounds(), {

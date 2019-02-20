@@ -276,7 +276,7 @@ export class DashboardService {
         //
         // console.log('columnDimensions', columnDimensions);
         // console.log('orgUnitId', orgUnitId);
-        console.log('dashboardItemType', dashboardItemType);
+        // console.log('dashboardItemType', dashboardItemType);
 
         const rowDimensionValue = rowDimensions[0];
         const columnDimensionsValue = columnDimensions[0];
