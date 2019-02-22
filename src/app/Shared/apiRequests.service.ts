@@ -98,7 +98,7 @@ if (dashboardItem.type) {
 }
 
 
-// (dashboardItem[type]);
+// console.log(dashboardItem[type]);
 
         if (dashboardItem[type]) {
             if (dashboardItem[type].hasOwnProperty('aggregationType')) {
@@ -222,6 +222,15 @@ if (dashboardItem.type) {
                 orgUnits.push(item.id);
             });
         }
+        if (dashboardItem[type].userOrganisationUnitGrandChildren === true) {
+                orgUnits.push('USER_ORGUNIT_GRANDCHILDREN');
+        }
+            if (dashboardItem[type].userOrganisationUnitChildren === true) {
+                orgUnits.push('USER_ORGUNIT_CHILDREN');
+            }
+            if (dashboardItem[type].userOrganisationUnit === true) {
+                orgUnits.push('USER_ORGUNIT');
+            }
         if (dashboardItem[type].hasOwnProperty('organisationUnitGroupSetDimensions')) {
                 // console.log('organisationUnitGroupSetDimensions')
                 // console.log(dashboardItem[type].organisationUnitGroupSetDimensions)

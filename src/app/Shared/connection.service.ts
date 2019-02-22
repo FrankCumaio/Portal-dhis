@@ -13,9 +13,13 @@ export class ConnectionService {
     // username = 'fcumaio';
     // password = 'Saudigitus2018!';
 
-    apiURI = 'https://tland.hispmoz.org/dhis';
-    username = 'cdjedje';
-    password = 'Maputo2018!';
+    apiURI = 'https://webmail.misau.gov.mz/prod';
+    username = 'portalmz';
+    password = 'sd4Ever!';
+
+    // apiURI = 'https://tland.hispmoz.org/dhis';
+    // username = 'cdjedje';
+    // password = 'Maputo2018!';
 
     // apiURI = 'http://venus.dhis2.org/dhis';
     // username = 'amuchanga';

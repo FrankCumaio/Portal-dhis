@@ -227,8 +227,7 @@
                                 <mat-icon fontSet="fa" fontIcon="fa-chart-pie"></mat-icon>
                                 GRAFICO
                             </mat-button-toggle>
-
-                                <mat-button-toggle mat-button (click)="changeReportType(i, 'MAP')"
+                                <mat-button-toggle *ngIf="dashItem.mapData !== null" mat-button (click)="changeReportType(i, 'MAP')"
                                         matTooltip="Mostrar como mapa"
                                         [disabled]="dashItem.renderedType === 'MAP'">
                                     <mat-icon fontSet="fa" fontIcon="fa-map"></mat-icon>
@@ -249,7 +248,7 @@
             MAPAS
             --------------------------------
             -->
-                    <mat-card *ngIf="dashItem.renderedType === 'MAP'">
+                    <mat-card *ngIf="dashItem.renderedType === 'MAP' && dashItem.mapData !== null">
                         <mat-card-header>
                             <mat-card-title>{{dashItem.displayName}}</mat-card-title>
                         </mat-card-header>
@@ -326,7 +325,7 @@
                                     GRAFICO
                                 </mat-button-toggle>
 
-                                <mat-button-toggle mat-button (click)="changeReportType(i, 'MAP')"
+                                <mat-button-toggle *ngIf="dashItem.mapData !== null" mat-button (click)="changeReportType(i, 'MAP')"
                                                    matTooltip="Mostrar como mapa"
                                                    [disabled]="dashItem.renderedType === 'MAP'">
                                     <mat-icon fontSet="fa" fontIcon="fa-map"></mat-icon>

@@ -50,7 +50,12 @@ export class MapService {
         } else {
             orgunits = orgUnitId;
         }
-
+        if (item.userOrganisationUnitChildren === true) {
+            orgunits = 'USER_ORGUNIT_CHILDREN;';
+        }
+        if (item.userOrganisationUnitGrandChildren === true) {
+            orgunits = 'USER_ORGUNIT_GRANDCHILDREN;';
+        }
 
         // return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?`
         // + `filter=id:in:[` + orgunits + `]&fields=:idName,coordinates,featureType`,
@@ -69,7 +74,7 @@ export class MapService {
         return this.http.get(`${this.connectionService.apiURI}/api/maps/` + mapId + `.json?`
             + `fields=:idName,mapViews[:idName,columns,rows,layer,organisationUnitLevels,colorScale,classes,opacity,translations,dataDimensionItems`
             + `[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],relativePeriods,periods,`
-            + `legendSet[*,legends[*]],filters,organisationUnits[:idName]]`,
+            + `legendSet[*,legends[*]],filters,organisationUnits[:idName],*]`,
             {headers: this.headers});
     }
 

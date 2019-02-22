@@ -43,7 +43,7 @@ export class DashboardService {
         this.dashboardItems = [];
         this.dashboards = [];
         this.orgUnits = [];
-        console.log(orgUnit)
+        // console.log(orgUnit)
         this.load(dashboardPos, orgUnit);
 
 
@@ -104,7 +104,12 @@ export class DashboardService {
                         this.trasformedDashboardItems.push(result);
                         const rowDimensions = [element.chart.category];
                         const columnDimensions = [element.chart.series];
-                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, 'chart');
+// console.log(element);
+// console.log(element.organisationUnits);
+                        let mapData = null;
+                        if (element.organisationUnits !== undefined) {
+                             mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, 'chart');
+                        }
                         const chartOpt = this.buildEventChart(element, result, rowDimensions, columnDimensions, orgUnitId, 'chart');
                         const tableData = this.builTable(element, result, rowDimensions, columnDimensions, orgUnitId, 'chart');
                         this.dashboardItems.push({
@@ -123,15 +128,18 @@ export class DashboardService {
                 if (element.type === 'REPORT_TABLE' || element.type === 'EVENT_REPORT') {
                     const type = this.apiRequestsService.convertUnderscoreToCamelCase(element.type);
                     await this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(element), orgUnitId).subscribe(async (result) => {
-                       console.log(element)
+                       // console.log(element)
                         const rowDimensions = element[type].rowDimensions;
                         const columnDimensions = element[type].columnDimensions;
-                        // console.log(rowDimensions);
+                        console.log(element.organisationUnits);
                         // console.log(columnDimensions);
-                        const mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, type);
+                        let mapData = null;
+                        if (element.organisationUnits !== undefined) {
+                             mapData = await this.buildMap(element, result, rowDimensions, columnDimensions, orgUnitId, type);
+                        }
                         const chartOpt = this.buildEventChart(element, result, rowDimensions, columnDimensions, orgUnitId, type);
                         const tableData = await this.builTable(element, result, rowDimensions, columnDimensions, orgUnitId, type);
-
+// console.log(mapData);
 
                         this.dashboardItems.push({
                             chartOpt: chartOpt,
@@ -146,8 +154,10 @@ export class DashboardService {
                 } else
                 // Vamos la tratar os Mapas
                 if (element.type === 'MAP') {
+                    // console.log(element);
                     await this.mapService.getMapviews(element.map.id).subscribe((res) => {
-                        // console.log(res);
+                        // console.log(res.organisationUnits);
+
                         const geoData = [];
 
                         res.mapViews.forEach((mapView) => {
@@ -579,6 +589,9 @@ export class DashboardService {
                         // }
                         //
                     }
+                    console.log(result.rows)
+                    console.log(el);
+
                     result.rows.forEach((row) => {
 
                         if (el.id === row[1]) {
