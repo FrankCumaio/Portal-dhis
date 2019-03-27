@@ -13,7 +13,8 @@ export class ConnectionService {
     // username = 'fcumaio';
     // password = 'Saudigitus2018!';
 
-    apiURI = 'https://webmail.misau.gov.mz/prod';
+    // apiURI = 'https://webmail.misau.gov.mz/prod';
+    apiURI = 'https://www.dhis2.org.mz/prod';
     username = 'portalmz';
     password = 'sd4Ever!';
 
@@ -21,9 +22,13 @@ export class ConnectionService {
     // username = 'cdjedje';
     // password = 'Maputo2018!';
 
-    // apiURI = 'http://venus.dhis2.org/dhis';
+    // apiURI = 'https://data.wahooas.org/dhis';
     // username = 'amuchanga';
     // password = 'Maputo2017!';
+
+    // apiURI = 'https://gbsis.dhis2.org/dhis';
+    // username = 'fcumaio';
+    // password = 'Saudigitus2018!';
 
     // apiURI = 'https://dhis2.saudigitus.org/dhis';
     // username = 'dashboardApp';

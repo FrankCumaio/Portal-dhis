@@ -4,13 +4,15 @@
         "report": "Relatórios",
         "downloads": "Downloads",
         "about": "Sobre nós",
-        "title": "Portal do sistema de informação de saude de Moçambique"
+        "title-SISMA": "Portal do sistema de informação de saude de Moçambique",
+        "title-WAHO":"OOAS - Portal Regional de Dados de Saúde"
 
     },
     "sidebar": {
         "period": "Periodo",
         "region": "Região",
         "regionAll": "Todas Regiões"
+
     },
     "filters": {
         "title": "Filtros",
@@ -21,5 +23,15 @@
     "reports": {
         "all": "Todos os Relatórios",
         "selected": "Relatórios Selecionados"
+    },
+    "generic":{
+        "read-MORE":"Saiba Mais",
+        "about-SISMA": "Sobre o SIS-MA",
+        "about-WAHO": "Sobre a OOAS",
+        "SISMA":"Sistema de Informação de Saúde para Monitoria e Avaliação",
+        "WAHO":"Armazém de Dados da Organização da Saúde da África Ocidental",
+        "desc-SISMA":"Plataforma DHIS2, de código aberto flexível baseado na Web que coleta, valida, analisa e apresenta os dados estatísticos agregados, adaptado às actividades de gestão integrada de informação em saúde",
+        "desc-WAHO1":"Na OOAS, o foco está no alinhamento de dados, doenças e tecnologia de vigilância epidemiológica, controle de qualidade e melhores padrões de dados.",
+        "desc-WAHO2":"A OOAS está trabalhando ativamente com os países para encontrar os indicadores certos para seu contexto específico. Existem atualmente cerca de 80 indicadores essenciais no data warehouse regional. Eles cobrem muitas áreas, como demografia, carga de doenças, utilização de serviços de saúde, financiamento da saúde, recursos humanos e doenças epidêmicas. No momento, são os indicadores epidemiológicos que estão sendo reportados pelos países, mas o plano é expandir com o restante em 2016."
     }
 }

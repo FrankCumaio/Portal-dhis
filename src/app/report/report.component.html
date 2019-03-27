@@ -39,7 +39,6 @@
 <div class="loading-indicator" xmlns="http://www.w3.org/1999/html">
     <mat-progress-spinner [hidden]="!dashboardService.waiting" class="example-margin" [color]="color"
                           mode="indeterminate">
-        <span>Carregando dados...</span>
     </mat-progress-spinner>
 
 </div>
@@ -156,25 +155,32 @@
                 <mat-expansion-panel-header>
                     <mat-panel-title>
                         <!--<i class="fas fa-info"></i>-->
-                        <span> Sobre SIS-MA</span>
+                        <span> {{ 'generic.about-WAHO' | translate }}</span>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="section">
-                   <strong>Sistema de Informação de Saúde para Monitoria e Avaliação</strong>
+                   <strong>{{'generic.WAHO' | translate}}</strong>
                 </div>
                 <br>
-<div class="section">
-    Plataforma DHIS2, de código aberto flexível baseado na Web que coleta, valida, analisa e apresenta os dados estatísticos agregados, adaptado às actividades de gestão integrada de informação em saúde</div>
+<div class="section" style="text-align: justify">
+    {{'generic.desc-WAHO1' | translate}}
+</div>
                 <br>
 
                 <div class="section">
-                <img align="center" src="assets/img/SISMA ARqui.png" width="90%">
+                    <!--SISMA-->
+                <!--<img align="center" src="assets/img/SISMA ARqui.png" width="90%">-->
+                    <!--END SISMA-->
+
+                    <!--WAHO-->
+                    <img align="center" src="assets/img/WAHO_Map.png" width="90%">
+                    <!--END WAHO-->
                 </div>
                 <br>
                 <div class="section">
-                    <!--WAHO is actively working with countries to find the right indicators for their specific context. There are currently about 80 essential indicators in the regional data warehouse. They cover many areas such as demographics, disease burden, health service utilization, health financing, human resources and epidemic diseases. At the moment it is the epidemiological indicators that are being reported by countries, but the plan is to expand with the rest in 2016.-->
+                    {{'generic.desc-WAHO2' | translate}}
                 </div>
-                <a routerLink="/about" routerLinkActive="active" class="btn btn-primary"> Saiba Mais</a>
+                <a routerLink="/about" routerLinkActive="active" > {{'generic.read-MORE' | translate}}</a>
             </mat-expansion-panel>
         </mat-accordion>
 
@@ -194,120 +200,37 @@
                 <div class="report-body" *ngFor="let dashItem of chartOptions; let i=index" class="col-12 col-md-12 col-sm-12 reps"
                      id="rep{{i}}" tabindex="-1">
 
+
                     <!--
-            --------------------------------
-            GRAFICOS
-            --------------------------------
-            -->
-                    <mat-card *ngIf="dashItem.renderedType === 'CHART' || dashItem.renderedType === 'EVENT_CHART'">
+                    --------------------------------
+                    Component
+                    --------------------------------
+                    -->
+                    <mat-card >
                         <mat-card-header>
                             <mat-card-title>{{dashItem.displayName}}</mat-card-title>
                         </mat-card-header>
-                        <mat-card-content>
-                            <highcharts-chart
-                                    [Highcharts]="Highcharts"
-                                    [options]="dashItem.chartOpt"
+                        <mat-card-content [style.overflow]="'auto'" [style.height.px]="'450'">
 
-                                    style="width: 100%; height: 450px; display: block; margin: 0 auto">
-
-                            </highcharts-chart>
-                        </mat-card-content>
-                        <mat-card-actions>
-                            <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
-                            <mat-button-toggle mat-button color="accent" matTooltip="Mostrar como tabela"
-                                    (click)="changeReportType(i,'REPORT_TABLE')"
-                                    [disabled]="dashItem.renderedType === 'REPORT_TABLE' || dashItem.type === 'EVENT_REPORT'">
-                                <mat-icon fontSet="fa" fontIcon="fa-table"></mat-icon>
-                                TABELA
-                            </mat-button-toggle>
-                            <mat-button-toggle mat-button="" color="accent"
-                                    matTooltip="Mostrar como gráfico de barras"
-                                    (click)="changeReportType(i, 'CHART')"
-                                    [disabled]="dashItem.renderedType === 'CHART' || dashItem.renderedType === 'EVENT_CHART'">
-                                <mat-icon fontSet="fa" fontIcon="fa-chart-pie"></mat-icon>
-                                GRAFICO
-                            </mat-button-toggle>
-                                <mat-button-toggle *ngIf="dashItem.mapData !== null" mat-button (click)="changeReportType(i, 'MAP')"
-                                        matTooltip="Mostrar como mapa"
-                                        [disabled]="dashItem.renderedType === 'MAP'">
-                                    <mat-icon fontSet="fa" fontIcon="fa-map"></mat-icon>
-                                    MAPA
-                                </mat-button-toggle>
-                            </mat-button-toggle-group>
-                        </mat-card-actions>
-                    </mat-card>
-
-                    <!--
-            --------------------------------
-            CLOSE GRAFICOS
-            --------------------------------
-            -->
-
-                    <!--
-            --------------------------------
-            MAPAS
-            --------------------------------
-            -->
-                    <mat-card *ngIf="dashItem.renderedType === 'MAP' && dashItem.mapData !== null">
-                        <mat-card-header>
-                            <mat-card-title>{{dashItem.displayName}}</mat-card-title>
-                        </mat-card-header>
-                        <!--<text x="306" text-anchor="middle" class="highcharts-title" data-z-index="4" style="color:#333333;font-size:18px;fill:#333333;" y="24"><tspan>{{dashItem.displayName}}</tspan></text>-->
-                        <mat-card-content>
-                            <div class="map-container" style="height: 450px;" id="map{{i}}" class="map"
+                            <div *ngIf="dashItem.renderedType === 'MAP'" class="map-container" style="height: 450px;" id="map{{i}}" class="map"
                                  leaflet
                                  (leafletMapReady)="onMapReady($event)"
                                  [leafletOptions]="dashItem.mapData.mapOptions"
                                  [leafletFitBoundsOptions]="dashItem.mapData.fitBoundsOptions">
                             </div>
-                        </mat-card-content>
-                        <mat-card-actions>
-                            <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
-                                <mat-button-toggle mat-button color="accent" matTooltip="Mostrar como tabela"
-                                                   (click)="changeReportType(i,'REPORT_TABLE')"
-                                                   [disabled]="dashItem.renderedType === 'REPORT_TABLE' || dashItem.type === 'EVENT_REPORT'">
-                                    <mat-icon fontSet="fa" fontIcon="fa-table"></mat-icon>
-                                    TABELA
-                                </mat-button-toggle>
-                                <mat-button-toggle mat-button="" color="accent"
-                                                   matTooltip="Mostrar como gráfico de barras"
-                                                   (click)="changeReportType(i, 'CHART')"
-                                                   [disabled]="dashItem.renderedType === 'CHART'">
-                                    <mat-icon fontSet="fa" fontIcon="fa-chart-pie"></mat-icon>
-                                    GRAFICO
-                                </mat-button-toggle>
-
-                                <mat-button-toggle mat-button (click)="changeReportType(i, 'MAP')"
-                                                   matTooltip="Mostrar como mapa"
-                                                   [disabled]="dashItem.renderedType === 'MAP'">
-                                    <mat-icon fontSet="fa" fontIcon="fa-map"></mat-icon>
-                                    MAPA
-                                </mat-button-toggle>
-                            </mat-button-toggle-group>
-                        </mat-card-actions>
-                    </mat-card>
-                    <!--
-            --------------------------------
-            ClOSE MAPAS
-            --------------------------------
-            -->
-
-                    <!--
-                    --------------------------------
-                    TABELAS
-                    --------------------------------
-                    -->
-                    <mat-card *ngIf="dashItem.renderedType === 'REPORT_TABLE'">
-                        <mat-card-header>
-                            <mat-card-title>{{dashItem.displayName}}</mat-card-title>
-                        </mat-card-header>
-                        <mat-card-content [style.overflow]="'auto'" [style.height.px]="'450'">
-                            <app-pivot-table style="width: 100%; height: 450px; display: block; margin: 0 auto"
+                            <app-pivot-table *ngIf="dashItem.renderedType === 'REPORT_TABLE'" style="width: 100%; height: 450px; display: block; margin: 0 auto"
                                              [rowsValues]="dashItem.tableData.rowsValues"
                                              [rowDimensions]="dashItem.tableData.rowDimensions"
                                              [columnDimensions]="dashItem.tableData.columnDimensions">
 
                             </app-pivot-table>
+                            <highcharts-chart  *ngIf="dashItem.renderedType === 'CHART' || dashItem.renderedType === 'EVENT_CHART'"
+                                               [Highcharts]="Highcharts"
+                                               [options]="dashItem.chartOpt"
+
+                                               style="width: 100%; height: 450px; display: block; margin: 0 auto">
+
+                            </highcharts-chart>
                         </mat-card-content>
                         <mat-card-actions>
                             <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
@@ -337,7 +260,7 @@
 
                     <!--
             --------------------------------
-            CLOSE TABELAS
+            CLOSE component
             --------------------------------
             -->
                 </div>

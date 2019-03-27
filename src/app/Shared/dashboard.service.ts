@@ -172,6 +172,7 @@ export class DashboardService {
                                 this.apiRequestsService.getItemData(this.apiRequestsService.prepareForRequest(dashboardItem), orgUnitId).subscribe(async (result) => {
                                     const rowDimensions = [];
                                     const columnDimensions = [];
+                                    let mapData;
 
                                     mapView.rows.forEach((rw) => {
                                         rowDimensions.push(rw.id);
@@ -179,7 +180,10 @@ export class DashboardService {
                                     mapView.columns.forEach((cm) => {
                                         columnDimensions.push(cm.id);
                                     });
-                                    const mapData = await this.buildMap(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, 'map');
+                                   await this.buildMap(dashboardItem, result, rowDimensions,
+                                        columnDimensions, orgUnitId, 'map').then((data) => {
+                                        mapData = data;
+                                    })
                                     const chartOpt = this.buildEventChart(dashboardItem, result, columnDimensions, rowDimensions, orgUnitId, 'map');
                                     const tableData = this.builTable(dashboardItem, result, rowDimensions, columnDimensions, orgUnitId, 'map');
                                     this.dashboardItems.push({
@@ -589,8 +593,8 @@ export class DashboardService {
                         // }
                         //
                     }
-                    console.log(result.rows)
-                    console.log(el);
+                    // console.log(result.rows)
+                    // console.log(el);
 
                     result.rows.forEach((row) => {
 

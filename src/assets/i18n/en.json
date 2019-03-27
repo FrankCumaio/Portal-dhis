@@ -4,14 +4,16 @@
         "report": "Reports",
         "downloads": "Downloads",
         "about": "About Us",
-        "title": "Mozambique's health information system portal"
+       "title-SISMA": "Mozambique's health information system portal",
+        "title-WAHO":"WAHO - Regional Health Data Warehouse Portal"
+
 
     },
     "sidebar": {
         "period": "Period",
         "region": "Region",
-        "regionAll": "All Regions"
-    },
+        "regionAll": "All Regions",
+            },
     "filters": {
         "title": "Filters",
         "reset_btn": "Reset Filters", 
@@ -21,5 +23,16 @@
     "reports": {
         "all": "All reports",
         "selected": "Selected Reports"
+    },
+    "generic":{
+        "read-MORE":"Read More",
+        "about-SISMA": "About SIS-MA",
+        "about-WAHO": "About WAHO",
+        "SISMA":"Sistema de Informação de Saúde para Monitoria e Avaliação",
+        "WAHO":"West Africa Health Organization Data WareHouse",
+        "desc-SISMA":"Flexible open source web-based DHIS2 platform that collects, validates, analyzes and presents aggregated statistical data, adapted to the activities of integrated health information management",
+        "desc-WAHO1":"At WAHO, the focus is on aligning data, disease and epidemiological surveillance technology, quality control and improved data standards.",
+        "desc-WAHO2":"WAHO is actively working with countries to find the right indicators for their specific context. There are currently about 80 essential indicators in the regional data warehouse. They cover many areas such as demographics, disease burden, health service utilization, health financing, human resources and epidemic diseases. At the moment it is the epidemiological indicators that are being reported by countries, but the plan is to expand with the rest in 2016."
+
     }
 }

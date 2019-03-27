@@ -2,9 +2,15 @@
     "navbar": {
         "home": "Premier",
         "report": "Rapports",
-        "title": "Portail du système d'information sanitaire du Mozambique"
+        "title-SISMA": "Portail du système d'information sanitaire du Mozambique",
+        "title-WAHO":" OOAS - Portail Régional de Données sur la Santé"
 
     },
+    "sidebar": {
+        "period": "Period",
+        "region": "Region",
+        "regionAll": "All Regions",
+            },
     "filters": {
         "title": "Filtres",
         "reset_btn": "Réinitialiser les filtres"
@@ -12,5 +18,16 @@
     "reports": {
         "all": "Tous les rapports",
         "selected": "Rapports sélectionnés"
+    },
+    "generic":{
+        "read-MORE":"Lire la suite",
+        "about-SISMA": "À propos de SIS-MA",
+        "about-WAHO": "À propos de la WAHO",
+        "SISMA":"Système d'information sur la santé pour le suivi et l'évaluation",
+        "WAHO":"Entrepôt de données de l'Organisation de la santé en Afrique de l'Ouest",
+        "desc-SISMA":"DHIS2, une plateforme Web flexible et à source ouverte, qui collecte, valide, analyse et présente des données statistiques agrégées, adaptées aux activités de gestion intégrée de l'information sur la santé.",
+        "desc-WAHO1":"À l'OOAS, l'accent est mis sur l'alignement des données, la technologie de surveillance épidémiologique et épidémiologique, le contrôle de la qualité et l'amélioration des normes de données.",
+        "desc-WAHO2":"A OOAS está trabalhando ativamente com os países para encontrar os indicadores certos para seu contexto específico. Existem atualmente cerca de 80 indicadores essenciais no data warehouse regional. Eles cobrem muitas áreas, como demografia, carga de doenças, utilização de serviços de saúde, financiamento da saúde, recursos humanos e doenças epidêmicas. No momento, são os indicadores epidemiológicos que estão sendo reportados pelos países, mas o plano é expandir com o restante em 2016."
+
     }
 }

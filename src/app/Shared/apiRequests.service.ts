@@ -30,8 +30,8 @@ export class ApiRequestsService {
     getDashboards(): Observable <any> {
         // ('olaaaa');
         // (this.connectionService.getApiURI);
-        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
-        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
+        return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?filter=id:in:[jYWdRK9QeRn,lkzxeJPSMMl,Oz9GPjCa0fu]&fields=:`
+        // return this.http.get(`${this.connectionService.apiURI}/api/dashboards.json?fields=:`
              + `idName,translations,dashboardItems[:idName,type,id,`
             + `reportTable[:idName,dataDimensionItems[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],organisationUnits[:idName],*],`
             + `eventChart[:all,organisationUnits[:idName],dataElementDimensions[indicator[:idName],dataElement[:idName],programIndicator[:idName],*],*],`
