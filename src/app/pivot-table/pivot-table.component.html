@@ -1,1 +1,8 @@
-<div id="output"></div>
+<div *ngIf="!isLoaded" id="loading-container">
+    <div id="loading-inner">
+        <img src="http://loadinggif.com/images/image-selection/27.gif" />
+    </div>
+
+    <h4>Loading Table...</h4>
+</div>
+<div id="output{{itemID}}"></div>

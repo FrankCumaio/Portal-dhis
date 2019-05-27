@@ -25,6 +25,8 @@ import {MatButtonToggleModule} from '@angular/material/button-toggle';
 import { AboutComponent } from './about/about.component';
 import { RouterModule, Routes } from '@angular/router';
 import { DownloadsComponent } from './downloads/downloads.component';
+import { MapComponent } from './Map/map.component';
+import { ChartComponent } from './chart/chart.component';
 // export function dahsboardServiceFactory(provider: DashboardService) {
 //     return () => provider.load();
 // }
@@ -47,6 +49,8 @@ const appRoutes: Routes = [
     ReportComponent,
     AboutComponent,
     DownloadsComponent,
+    MapComponent,
+    ChartComponent,
   ],
   imports: [
       NgbModule,

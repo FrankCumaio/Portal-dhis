@@ -1,0 +1,15 @@
+<div *ngIf="!isLoaded" id="loading-container">
+  <div id="loading-inner">
+    <img src="http://loadinggif.com/images/image-selection/27.gif" />
+  </div>
+
+  <h4>Loading MAP...</h4>
+</div>
+
+<!-- This element is displayed after loading is complete -->
+<div *ngIf="isLoaded" style="height: 450px;"
+  leaflet
+  (leafletMapReady)="onMapReady($event)"
+  [leafletOptions]="processedMapData.mapOptions"
+  [leafletFitBoundsOptions]="processedMapData.fitBoundsOptions">
+</div>

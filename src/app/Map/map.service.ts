@@ -36,10 +36,22 @@ export class MapService {
         // console.log(item);
         let orgunits = ``;
         let levels = ``;
-        item.organisationUnitLevels.forEach((el) => {
+        if (item.userOrganisationUnit === true) {
+            orgunits = 'USER_ORGUNIT;';
+        }
+        if (item.userOrganisationUnitChildren === true) {
+            orgunits = 'USER_ORGUNIT_CHILDREN;';
+        }
+        if (item.userOrganisationUnitGrandChildren === true) {
+            orgunits = 'USER_ORGUNIT_GRANDCHILDREN;';
+        }
+        if (item.hasOwnProperty('organisationUnitLevels') && item.userOrganisationUnitChildren === false ||
+            item.userOrganisationUnitChildren === false || item.userOrganisationUnitGrandChildren === false) {
+            item.organisationUnitLevels.forEach((el) => {
             levels = levels + `LEVEL-` + el + `;`;
             }
         );
+        }
         if (orgUnitId === null) {
             item.organisationUnits.forEach((el) => {
                     orgunits = orgunits + el.id + `;`;
@@ -50,12 +62,7 @@ export class MapService {
         } else {
             orgunits = orgUnitId;
         }
-        if (item.userOrganisationUnitChildren === true) {
-            orgunits = 'USER_ORGUNIT_CHILDREN;';
-        }
-        if (item.userOrganisationUnitGrandChildren === true) {
-            orgunits = 'USER_ORGUNIT_GRANDCHILDREN;';
-        }
+
 
         // return this.http.get(`${this.connectionService.apiURI}/api/organisationUnits.json?`
         // + `filter=id:in:[` + orgunits + `]&fields=:idName,coordinates,featureType`,
@@ -103,6 +110,7 @@ export class MapService {
             });
             start = start + intervalo;
         }
+        // console.log(legendSet)
         return legendSet;
      }
 

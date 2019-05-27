@@ -1,11 +1,6 @@
 import { Component, OnInit, Inject, ElementRef, AfterViewInit} from '@angular/core';
-import * as Highcharts from 'highcharts';
-import NoDataToDisplay from 'highcharts/modules/no-data-to-display';
-import * as HighMaps from 'highcharts/highmaps';
-import * as HC_exporting from 'highcharts/modules/exporting';
-import * as HC_map from 'highcharts/modules/map';
+
 import { ApiRequestsService } from '../Shared/apiRequests.service';
-import * as L from 'leaflet';
 import {MapService} from '../Map/map.service';
 import {DashboardService} from '../Shared/dashboard.service';
 import {AppComponent} from '../app.component';
@@ -15,9 +10,7 @@ import * as $ from 'jquery';
 
 
 
-HC_map( Highcharts);
-HC_exporting( Highcharts);
-NoDataToDisplay(Highcharts);
+
 
 // require('../../js/world')(Highcharts);
 
@@ -29,7 +22,7 @@ NoDataToDisplay(Highcharts);
 export class ReportComponent implements OnInit {
     private title: string;
     public chartOptions: any = []; chartMap = [];
-    public Highcharts = Highcharts;
+
     public dashboards: any;
     public selectedDashboard: any;
     public selectedOrgUnit: any;
@@ -50,12 +43,7 @@ export class ReportComponent implements OnInit {
     }
 
     ngOnInit() {
-        Highcharts.setOptions({
-            colors: ['rgb(169, 190, 59)', 'rgb(85, 140, 192)', 'rgb(211, 73, 87)', 'rgb(255, 159, 58)',
-                'rgb(150, 143, 143)', 'rgb(183, 64, 159);', 'rgb(255, 218, 100)', 'rgb(79, 189, 174)',
-                'rgb(183, 128, 64)'],
-            lang: {noData: "Sem dados por mostrar"}
-        });
+
 
         console.log('AppComponent: OnInit()');
         this.getData(0);
@@ -97,11 +85,11 @@ export class ReportComponent implements OnInit {
         this.selectedDashboard = this.dashboardService.getSelectedDashboard();
 
     }
-    onMapReady(map: L.Map) {
-        map.fitBounds(this.dashboardService.MapGeoJson.getBounds(), {
-
-        });
-    }
+    // onMapReady(map: L.Map) {
+    //     map.fitBounds(this.dashboardService.MapGeoJson.getBounds(), {
+    //
+    //     });
+    // }
 
     changeReportType(i: number, type: string, chartType?) {
         if (type === 'CHART') {

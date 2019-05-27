@@ -36,12 +36,12 @@
 
 <!--&lt;!&ndash; Page Content  &ndash;&gt;-->
 <!--<div id="content">-->
-<div class="loading-indicator" xmlns="http://www.w3.org/1999/html">
-    <mat-progress-spinner [hidden]="!dashboardService.waiting" class="example-margin" [color]="color"
-                          mode="indeterminate">
-    </mat-progress-spinner>
+<!--<div class="loading-indicator" xmlns="http://www.w3.org/1999/html">-->
+    <!--<mat-progress-spinner [hidden]="!dashboardService.waiting" class="example-margin" [color]="color"-->
+                          <!--mode="indeterminate">-->
+    <!--</mat-progress-spinner>-->
 
-</div>
+<!--</div>-->
 
 <div class="wrapper">
 
@@ -155,15 +155,15 @@
                 <mat-expansion-panel-header>
                     <mat-panel-title>
                         <!--<i class="fas fa-info"></i>-->
-                        <span> {{ 'generic.about-WAHO' | translate }}</span>
+                        <span> {{ 'generic.about-SISMA' | translate }}</span>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <div class="section">
-                   <strong>{{'generic.WAHO' | translate}}</strong>
+                   <strong>{{'generic.SISMA' | translate}}</strong>
                 </div>
                 <br>
 <div class="section" style="text-align: justify">
-    {{'generic.desc-WAHO1' | translate}}
+    {{'generic.desc-SISMA' | translate}}
 </div>
                 <br>
 
@@ -173,12 +173,12 @@
                     <!--END SISMA-->
 
                     <!--WAHO-->
-                    <img align="center" src="assets/img/WAHO_Map.png" width="90%">
+                    <img align="center" src="assets/img/SISMA ARqui.png" width="90%">
                     <!--END WAHO-->
                 </div>
                 <br>
                 <div class="section">
-                    {{'generic.desc-WAHO2' | translate}}
+                    <!--{{'generic.desc-WAHO2' | translate}}-->
                 </div>
                 <a routerLink="/about" routerLinkActive="active" > {{'generic.read-MORE' | translate}}</a>
             </mat-expansion-panel>
@@ -195,7 +195,6 @@
                     <li class="breadcrumb-item active" aria-current="page">{{selectedDashboard[0].displayName}}</li>
                 </ol>
             </nav>
-
             <div class="row reports-row">
                 <div class="report-body" *ngFor="let dashItem of chartOptions; let i=index" class="col-12 col-md-12 col-sm-12 reps"
                      id="rep{{i}}" tabindex="-1">
@@ -212,25 +211,19 @@
                         </mat-card-header>
                         <mat-card-content [style.overflow]="'auto'" [style.height.px]="'450'">
 
-                            <div *ngIf="dashItem.renderedType === 'MAP'" class="map-container" style="height: 450px;" id="map{{i}}" class="map"
-                                 leaflet
-                                 (leafletMapReady)="onMapReady($event)"
-                                 [leafletOptions]="dashItem.mapData.mapOptions"
-                                 [leafletFitBoundsOptions]="dashItem.mapData.fitBoundsOptions">
-                            </div>
+                            <app-map *ngIf="dashItem.renderedType === 'MAP'"
+                                    [mapData] ="dashItem.mapData"> </app-map>
+
                             <app-pivot-table *ngIf="dashItem.renderedType === 'REPORT_TABLE'" style="width: 100%; height: 450px; display: block; margin: 0 auto"
-                                             [rowsValues]="dashItem.tableData.rowsValues"
-                                             [rowDimensions]="dashItem.tableData.rowDimensions"
-                                             [columnDimensions]="dashItem.tableData.columnDimensions">
-
+                                             [tableData]="dashItem.tableData"
+                                             [itemID]="i">
                             </app-pivot-table>
-                            <highcharts-chart  *ngIf="dashItem.renderedType === 'CHART' || dashItem.renderedType === 'EVENT_CHART'"
-                                               [Highcharts]="Highcharts"
-                                               [options]="dashItem.chartOpt"
 
-                                               style="width: 100%; height: 450px; display: block; margin: 0 auto">
+                            <app-chart *ngIf="dashItem.renderedType === 'CHART' || dashItem.renderedType === 'EVENT_CHART'"
+                            [chartData]="dashItem.chartData"
+                                       [itemID]="i">
 
-                            </highcharts-chart>
+                            </app-chart>
                         </mat-card-content>
                         <mat-card-actions>
                             <mat-button-toggle-group name="fontStyle" aria-label="Font Style">

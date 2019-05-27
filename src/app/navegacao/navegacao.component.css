@@ -18,11 +18,11 @@ a:focus {
 .navbar {
     font-family: 'GillSans-light';
     /*MISAU*/
-    /*background-color: rgb(39, 102, 150);*/
+    background-color: rgb(39, 102, 150);
     /*END MISAU*/
 
     /*OOAS*/
-    background-color: #00792a;
+    /*background-color: #00792a;*/
     /*END OOAS*/
     padding: 0;
     font-size: 18px;

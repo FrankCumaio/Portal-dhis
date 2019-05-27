@@ -5,11 +5,15 @@ import { Injectable } from '@angular/core';
 })
 export class ConnectionService {
 
-    //   apiURI = 'https://play.dhis2.org/2.29';
+    //   apiURI = 'https://play.dhis2.org/2.30';
     // username = 'admin';
     //   password = 'district'
 
     // apiURI = 'https://moz.dhis2.org/dhis';
+    // username = 'fcumaio';
+    // password = 'Saudigitus2018!';
+
+    // apiURI = 'https://www.dhis2.org.mz/hosp';
     // username = 'fcumaio';
     // password = 'Saudigitus2018!';
 

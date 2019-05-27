@@ -1,0 +1,15 @@
+<div *ngIf="!isLoaded" id="loading-container">
+  <div id="loading-inner">
+    <img src="http://loadinggif.com/images/image-selection/27.gif" />
+  </div>
+
+  <h4>Loading Chart...</h4>
+</div>
+<highcharts-chart *ngIf="isLoaded" id="chart{{itemID}}"
+        [Highcharts]="Highcharts"
+        [options]="chartOptions"
+
+
+        style="width: 100%; height: 450px; display: block; margin: 0 auto">
+
+</highcharts-chart>
